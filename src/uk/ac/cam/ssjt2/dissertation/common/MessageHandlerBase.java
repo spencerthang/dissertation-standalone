@@ -1,8 +1,6 @@
 package uk.ac.cam.ssjt2.dissertation.common;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 
 /**
  * Created by Spencer on 3/11/2015.
@@ -18,7 +16,7 @@ public abstract class MessageHandlerBase implements Runnable, AutoCloseable {
     }
 
     public MessageHandlerBase(InputStream inputStream, OutputStream outputStream, boolean leaveOpen) {
-        m_InputStream = inputStream;
+        m_InputStream = new BufferedInputStream(inputStream);
         m_OutputStream = outputStream;
         m_LeaveOpen = leaveOpen;
     }

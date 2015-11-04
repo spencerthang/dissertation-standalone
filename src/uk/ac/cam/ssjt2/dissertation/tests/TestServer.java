@@ -26,15 +26,10 @@ public class TestServer implements Runnable {
         try(ServerSocket socket = new ServerSocket(m_Port)) {
             while(true) {
                 Socket client = socket.accept();
-                TestServerHandler handler = new TestServerHandler();
-                try(BufferedInputStream bufferedInputStream = new BufferedInputStream(client.getInputStream());
-                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(client.getOutputStream())) {
-                    MessageBase message;
-                    while((message = handler.handleMessage(bufferedInputStream, bufferedOutputStream)) != null) {
-                        Messages.add(message);
-                    }
+                TestServerHandler handler = new TestServerHandler(client.getInputStream(), client.getOutputStream(), this);
+                while(client.isConnected()) {
+                    handler.handleMessage();
                 }
-                client.close();
             }
         } catch (IOException e) {
             System.err.println(e);

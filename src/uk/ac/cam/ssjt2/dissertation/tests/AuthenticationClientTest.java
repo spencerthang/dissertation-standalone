@@ -19,15 +19,14 @@ public class AuthenticationClientTest {
     }
 
     @Test
-    public void canTestConnection() throws IOException {
-        // Create echo server
-        String echoString = "123456";
-        Thread echoServer = new Thread(new EchoServer(c_ServerPort, echoString));
+    public void canOpenConnection() throws IOException {
+        // Create test server
+        Thread echoServer = new Thread(new TestServer(c_ServerPort, null));
         echoServer.start();
 
-        // Get echo response
+        // Check connection succeeds
         AuthenticationClient client = new AuthenticationClient(c_ServerAddress, c_ServerPort);
-        assertEquals(echoString, client.testConnection());
+        assertTrue(client.connect());
     }
 
 

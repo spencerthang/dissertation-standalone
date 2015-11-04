@@ -8,9 +8,9 @@ public class AuthenticationClient {
     private String m_ServerAddress;
     private int m_ServerPort;
 
-    public AuthenticationClient(String c_ServerAddress, int c_ServerPort) {
-        m_ServerAddress = c_ServerAddress;
-        m_ServerPort = c_ServerPort;
+    public AuthenticationClient(String serverAddress, int serverPort) {
+        m_ServerAddress = serverAddress;
+        m_ServerPort = serverPort;
     }
 
 }

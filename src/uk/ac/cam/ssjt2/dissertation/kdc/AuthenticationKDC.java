@@ -30,6 +30,10 @@ public class AuthenticationKDC implements Runnable {
         m_KeyStore.put(nodeId, key);
     }
 
+    public SecretKey getKey(int nodeId) {
+        return m_KeyStore.get(nodeId);
+    }
+
     public void sign(int nodeId, byte[] bytes) {
 
     }

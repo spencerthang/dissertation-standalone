@@ -10,12 +10,12 @@ import java.net.Socket;
 /**
  * Created by Spencer on 1/11/2015.
  */
-public class EchoServer implements Runnable {
+public class TestServer implements Runnable {
 
     private final int m_Port;
     private final String m_EchoString;
 
-    public EchoServer(int port, String echoString) {
+    public TestServer(int port, String echoString) {
         m_Port = port;
         m_EchoString = echoString;
     }

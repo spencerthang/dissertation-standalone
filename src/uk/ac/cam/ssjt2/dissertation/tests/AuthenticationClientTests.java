@@ -30,7 +30,6 @@ public class AuthenticationClientTests {
 
     @Test
     public void canCreateNewClient() {
-        int serverPort = getServerPort();
         AuthenticationClient client = new AuthenticationClient(m_ClientKey);
         assertNotNull(client);
     }

@@ -29,7 +29,7 @@ public class TestServerHandler extends MessageHandlerBase {
         switch(header) {
             case AuthenticationProtocol.HEADER_TEST:
                 m_OutputStream.write(new TestMessage().getBytes());
-                m_TestServer.Messages.add(new TestMessage().readFromStream(m_InputStream));
+                m_TestServer.Messages.add(TestMessage.readFromStream(m_InputStream));
                 break;
             default:
                 throw new IllegalArgumentException("Unrecognized message header: " + header);

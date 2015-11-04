@@ -14,8 +14,7 @@ public class TestMessage extends MessageBase {
         super(AuthenticationProtocol.HEADER_TEST);
     }
 
-    @Override
-    public MessageBase readFromStream(InputStream inputStream) {
+    public static TestMessage readFromStream(InputStream inputStream) {
         return new TestMessage();
     }
 }

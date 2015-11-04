@@ -1,9 +1,6 @@
 package uk.ac.cam.ssjt2.dissertation.common;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 /**
  * Created by Spencer on 2/11/2015.
@@ -11,18 +8,18 @@ import java.io.InputStream;
 public abstract class MessageBase implements AutoCloseable {
 
     private final byte m_Header;
-    protected final ByteArrayOutputStream m_Buffer = new ByteArrayOutputStream();
+    private final ByteArrayOutputStream m_ByteBuffer = new ByteArrayOutputStream();
+    protected final DataOutputStream m_Buffer = new DataOutputStream(m_ByteBuffer);
 
     public MessageBase(byte header) {
         m_Header = header;
-        m_Buffer.write(header);
+        m_ByteBuffer.write(header);
     }
 
-    public byte[] getBytes() {
-        return m_Buffer.toByteArray();
+    public byte[] getBytes() throws IOException {
+        m_Buffer.flush();
+        return m_ByteBuffer.toByteArray();
     }
-
-    public abstract MessageBase readFromStream(InputStream inputStream) throws IOException;
 
     @Override
     public void close() throws Exception {

@@ -16,7 +16,7 @@ public class AuthenticationClient implements AutoCloseable {
     private Socket m_Client = null;
     private ClientMessageHandler m_ClientHandler = null;
     private Thread m_ClientHandlerThread = null;
-    public static ArrayList<MessageBase> UnhandledMessages = new ArrayList<MessageBase>();
+    public ArrayList<MessageBase> UnhandledMessages = new ArrayList<MessageBase>();
 
     public AuthenticationClient(String serverAddress, int serverPort) {
         m_ServerAddress = serverAddress;

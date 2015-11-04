@@ -14,7 +14,7 @@ public class TestServer implements Runnable {
 
     private final int m_Port;
     private final String m_EchoString;
-    public static ArrayList<MessageBase> Messages = new ArrayList<MessageBase>();
+    public ArrayList<MessageBase> Messages = new ArrayList<MessageBase>();
 
     public TestServer(int port, String echoString) {
         m_Port = port;

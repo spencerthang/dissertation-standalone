@@ -1,11 +1,11 @@
 package uk.ac.cam.ssjt2.dissertation.tests;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import uk.ac.cam.ssjt2.dissertation.common.MessageBase;
+
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * Created by Spencer on 1/11/2015.
@@ -14,6 +14,7 @@ public class TestServer implements Runnable {
 
     private final int m_Port;
     private final String m_EchoString;
+    public static ArrayList<MessageBase> Messages = new ArrayList<MessageBase>();
 
     public TestServer(int port, String echoString) {
         m_Port = port;
@@ -25,13 +26,12 @@ public class TestServer implements Runnable {
         try(ServerSocket socket = new ServerSocket(m_Port)) {
             while(true) {
                 Socket client = socket.accept();
-                try(BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                    PrintWriter out = new PrintWriter(client.getOutputStream(), true)) {
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null) {
-                        out.println(m_EchoString != null ? m_EchoString : inputLine);
-                        if(inputLine.equals("exit"))
-                            break;
+                TestServerHandler handler = new TestServerHandler();
+                try(BufferedInputStream bufferedInputStream = new BufferedInputStream(client.getInputStream());
+                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(client.getOutputStream())) {
+                    MessageBase message;
+                    while((message = handler.handleMessage(bufferedInputStream, bufferedOutputStream)) != null) {
+                        Messages.add(message);
                     }
                 }
                 client.close();

@@ -93,6 +93,7 @@ public class AuthenticationKDCTests {
             KDCResponseMessage.KDCResponse readKDC = KDCResponseMessage.readFromStream(bis, clientKey);
             assertEquals(c_ClientNonce, readKDC.getClientNonce());
             assertEquals(c_TargetId, readKDC.getTargetId());
+            assertEquals(sessionKey, readKDC.getSessionKey());
         }
     }
 }

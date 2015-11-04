@@ -1,6 +1,8 @@
 package uk.ac.cam.ssjt2.dissertation.common;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -9,7 +11,7 @@ import java.io.InputStream;
 public abstract class MessageBase implements AutoCloseable {
 
     private final byte m_Header;
-    private final ByteArrayOutputStream m_Buffer = new ByteArrayOutputStream();
+    protected final ByteArrayOutputStream m_Buffer = new ByteArrayOutputStream();
 
     public MessageBase(byte header) {
         m_Header = header;
@@ -20,7 +22,7 @@ public abstract class MessageBase implements AutoCloseable {
         return m_Buffer.toByteArray();
     }
 
-    public abstract MessageBase readFromStream(InputStream inputStream);
+    public abstract MessageBase readFromStream(InputStream inputStream) throws IOException;
 
     @Override
     public void close() throws Exception {

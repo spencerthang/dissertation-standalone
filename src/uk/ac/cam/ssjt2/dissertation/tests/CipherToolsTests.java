@@ -1,5 +1,9 @@
 package uk.ac.cam.ssjt2.dissertation.tests;
 
+import org.hamcrest.collection.IsEmptyCollection;
+import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.IsNot;
+import org.junit.Assert;
 import org.junit.Test;
 import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
 
@@ -30,6 +34,9 @@ public class CipherToolsTests {
         CipherTools cipher = new CipherTools(m_CipherKey);
         byte[] testBytes = new byte[] { 0x0A, 0x01, 0x09, 0x0C, 0x0D, 0x1F, 0x77, 0x65 };
         byte[] encryptedBytes = cipher.encrypt(testBytes);
+        assertThat(encryptedBytes, IsNot.not(IsEqual.equalTo(testBytes)));
+        assertFalse(encryptedBytes.length == 0);
+
         byte[] decryptedBytes = cipher.decrypt(encryptedBytes);
         assertArrayEquals(testBytes, decryptedBytes);
     }

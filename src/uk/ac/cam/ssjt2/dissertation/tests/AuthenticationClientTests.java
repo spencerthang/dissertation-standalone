@@ -15,6 +15,7 @@ public class AuthenticationClientTests {
 
     public static final String c_ServerAddress = "127.0.0.1";
     public static int m_ServerPort = 5000;
+    public static final int m_ClientId = 1;
     public final SecretKey m_ClientKey;
 
     public AuthenticationClientTests() throws NoSuchAlgorithmException {
@@ -30,7 +31,7 @@ public class AuthenticationClientTests {
 
     @Test
     public void canCreateNewClient() {
-        AuthenticationClient client = new AuthenticationClient(m_ClientKey);
+        AuthenticationClient client = new AuthenticationClient(m_ClientId, m_ClientKey);
         assertNotNull(client);
     }
 
@@ -42,7 +43,7 @@ public class AuthenticationClientTests {
         serverThread.start();
 
         // Check connection succeeds
-        AuthenticationClient client = new AuthenticationClient(m_ClientKey);
+        AuthenticationClient client = new AuthenticationClient(m_ClientId, m_ClientKey);
         assertTrue(client.connect(c_ServerAddress, serverPort));
     }
 
@@ -55,7 +56,7 @@ public class AuthenticationClientTests {
         serverThread.start();
 
         // Send test message
-        AuthenticationClient client = new AuthenticationClient(m_ClientKey);
+        AuthenticationClient client = new AuthenticationClient(m_ClientId, m_ClientKey);
         client.connect(c_ServerAddress, serverPort);
         client.sendMessage(new TestMessage());
 
@@ -74,7 +75,7 @@ public class AuthenticationClientTests {
         serverThread.start();
 
         // Send test message
-        AuthenticationClient client = new AuthenticationClient(m_ClientKey);
+        AuthenticationClient client = new AuthenticationClient(m_ClientId, m_ClientKey);
         client.connect(c_ServerAddress, serverPort);
         client.sendMessage(new TestMessage());
 

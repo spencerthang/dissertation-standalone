@@ -12,14 +12,15 @@ import java.util.ArrayList;
  */
 public class AuthenticationClient implements AutoCloseable {
 
+    private final int m_NodeId;
     private final SecretKey m_ClientKey;
     private Socket m_Client = null;
     private ClientMessageHandler m_ClientHandler = null;
     private Thread m_ClientHandlerThread = null;
     public ArrayList<MessageBase> UnhandledMessages = new ArrayList<MessageBase>();
 
-    public AuthenticationClient(SecretKey clientKey) {
-
+    public AuthenticationClient(int nodeId, SecretKey clientKey) {
+        m_NodeId = nodeId;
         m_ClientKey = clientKey;
     }
 

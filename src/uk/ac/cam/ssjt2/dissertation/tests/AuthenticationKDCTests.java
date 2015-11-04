@@ -3,6 +3,7 @@ package uk.ac.cam.ssjt2.dissertation.tests;
 import org.junit.Test;
 import uk.ac.cam.ssjt2.dissertation.common.AuthenticationProtocol;
 import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
+import uk.ac.cam.ssjt2.dissertation.common.messages.KDCRequestMessage;
 import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
 import uk.ac.cam.ssjt2.dissertation.kdc.AuthenticationKDC;
 
@@ -57,6 +58,22 @@ public class AuthenticationKDCTests {
     }
 
     @Test
+    public void canPerformRoundTripKDCRequestMessage() throws IOException {
+        KDCRequestMessage writeKDCRequest = new KDCRequestMessage(c_ClientId, c_TargetId, c_ClientNonce);
+
+        byte[] writeKDCRequestBytes = writeKDCRequest.getBytes();
+        assertEquals(AuthenticationProtocol.HEADER_KDC_REQUEST, writeKDCRequestBytes[0]);
+
+        byte[] writeKDCRequestBytesWithoutHeader = Arrays.copyOfRange(writeKDCRequestBytes, 1, writeKDCRequestBytes.length);
+
+        try(ByteArrayInputStream bis = new ByteArrayInputStream(writeKDCRequestBytesWithoutHeader)) {
+            KDCRequestMessage readKDC = KDCRequestMessage.readFromStream(bis);
+
+            assertEquals(c_ClientId, readKDC.getClientId());
+            assertEquals(c_TargetId, readKDC.getTargetId());
+            assertEquals(c_ClientNonce, readKDC.getClientNonce());
+        }
+    }
 
     @Test
     public void canPerformRoundTripKDCResponseMessage() throws NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException, IOException {

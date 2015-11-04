@@ -45,5 +45,5 @@ public abstract class MessageHandlerBase implements Runnable, AutoCloseable {
         }
     }
 
-    public abstract MessageBase handleMessage() throws IOException;
+    public abstract void handleMessage() throws IOException;
 }

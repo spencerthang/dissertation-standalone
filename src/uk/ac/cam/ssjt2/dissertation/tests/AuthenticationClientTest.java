@@ -48,5 +48,23 @@ public class AuthenticationClientTest {
         assertTrue(testServer.Messages.get(0) instanceof TestMessage);
     }
 
+    @Test
+    public void canReceiveTestMessage() throws IOException, InterruptedException {
+        // Create test server
+        TestServer testServer = new TestServer(c_ServerPort, null);
+        Thread serverThread = new Thread(testServer);
+        serverThread.start();
+
+        // Send test message
+        AuthenticationClient client = new AuthenticationClient(c_ServerAddress, c_ServerPort);
+        client.connect();
+        client.sendMessage(new TestMessage());
+
+        // Await response, allow 2 seconds for processing
+        Thread.sleep(2000);
+        assertTrue(client.UnhandledMessages.size() == 1);
+        assertTrue(client.UnhandledMessages.get(0) instanceof TestMessage);
+    }
+
 
 }

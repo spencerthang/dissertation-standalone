@@ -2,6 +2,7 @@ package uk.ac.cam.ssjt2.dissertation.client;
 
 import uk.ac.cam.ssjt2.dissertation.common.AuthenticationProtocol;
 import uk.ac.cam.ssjt2.dissertation.common.MessageHandlerBase;
+import uk.ac.cam.ssjt2.dissertation.common.messages.TestMessage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,8 +13,11 @@ import java.io.OutputStream;
  */
 public class ClientMessageHandler extends MessageHandlerBase {
 
-    public ClientMessageHandler(InputStream inputStream, OutputStream outputStream) {
+    private final AuthenticationClient m_Client;
+
+    public ClientMessageHandler(InputStream inputStream, OutputStream outputStream, AuthenticationClient client) {
         super(inputStream, outputStream);
+        m_Client = client;
     }
 
     @Override
@@ -24,6 +28,7 @@ public class ClientMessageHandler extends MessageHandlerBase {
         switch(header) {
             case AuthenticationProtocol.HEADER_TEST:
                 System.out.println("[Client] Received test message.");
+                m_Client.UnhandledMessages.add(new TestMessage().readFromStream(m_InputStream));
                 break;
             default:
                 throw new IllegalArgumentException("Unrecognized message header: " + header);

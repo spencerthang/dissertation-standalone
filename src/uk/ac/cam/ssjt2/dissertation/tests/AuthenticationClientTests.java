@@ -2,14 +2,15 @@ package uk.ac.cam.ssjt2.dissertation.tests;
 
 import org.junit.Test;
 import uk.ac.cam.ssjt2.dissertation.client.AuthenticationClient;
+import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
 import uk.ac.cam.ssjt2.dissertation.common.messages.TestMessage;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class AuthenticationClientTests {
 
@@ -19,9 +20,7 @@ public class AuthenticationClientTests {
     public final SecretKey m_ClientKey;
 
     public AuthenticationClientTests() throws NoSuchAlgorithmException {
-        KeyGenerator generator = KeyGenerator.getInstance("AES");
-        generator.init(128);
-        m_ClientKey = generator.generateKey();
+        m_ClientKey = CipherTools.GenerateSecretKey();
     }
 
     private int getServerPort() {

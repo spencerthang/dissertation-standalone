@@ -46,4 +46,8 @@ public class AuthenticationClient implements AutoCloseable {
             m_Client.close();
         }
     }
+
+    protected SecretKey getClientKey() {
+        return m_ClientKey;
+    }
 }

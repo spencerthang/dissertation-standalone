@@ -11,34 +11,42 @@ import static org.junit.Assert.*;
 public class AuthenticationClientTests {
 
     public static final String c_ServerAddress = "127.0.0.1";
-    public static final int c_ServerPort = 5000;
+    public static int m_ServerPort = 5000;
+
+    private int getServerPort() {
+        m_ServerPort++;
+        return m_ServerPort;
+    }
 
     @Test
     public void canCreateNewClient() {
-        AuthenticationClient client = new AuthenticationClient(c_ServerAddress, c_ServerPort);
+        int serverPort = getServerPort();
+        AuthenticationClient client = new AuthenticationClient(c_ServerAddress, serverPort);
         assertNotNull(client);
     }
 
     @Test
     public void canOpenConnection() throws IOException {
         // Create test server
-        Thread serverThread = new Thread(new TestServer(c_ServerPort, null));
+        int serverPort = getServerPort();
+        Thread serverThread = new Thread(new TestServer(serverPort, null));
         serverThread.start();
 
         // Check connection succeeds
-        AuthenticationClient client = new AuthenticationClient(c_ServerAddress, c_ServerPort);
+        AuthenticationClient client = new AuthenticationClient(c_ServerAddress, serverPort);
         assertTrue(client.connect());
     }
 
     @Test
     public void canSendTestMessage() throws IOException, InterruptedException {
         // Create test server
-        TestServer testServer = new TestServer(c_ServerPort, null);
+        int serverPort = getServerPort();
+        TestServer testServer = new TestServer(serverPort, null);
         Thread serverThread = new Thread(testServer);
         serverThread.start();
 
         // Send test message
-        AuthenticationClient client = new AuthenticationClient(c_ServerAddress, c_ServerPort);
+        AuthenticationClient client = new AuthenticationClient(c_ServerAddress, serverPort);
         client.connect();
         client.sendMessage(new TestMessage());
 
@@ -51,12 +59,13 @@ public class AuthenticationClientTests {
     @Test
     public void canReceiveTestMessage() throws IOException, InterruptedException {
         // Create test server
-        TestServer testServer = new TestServer(c_ServerPort, null);
+        int serverPort = getServerPort();
+        TestServer testServer = new TestServer(serverPort, null);
         Thread serverThread = new Thread(testServer);
         serverThread.start();
 
         // Send test message
-        AuthenticationClient client = new AuthenticationClient(c_ServerAddress, c_ServerPort);
+        AuthenticationClient client = new AuthenticationClient(c_ServerAddress, serverPort);
         client.connect();
         client.sendMessage(new TestMessage());
 

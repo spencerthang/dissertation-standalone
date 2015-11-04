@@ -1,7 +1,6 @@
 package uk.ac.cam.ssjt2.dissertation.tests;
 
 import org.junit.Test;
-import uk.ac.cam.ssjt2.dissertation.client.AuthenticationClient;
 import uk.ac.cam.ssjt2.dissertation.common.AuthenticationProtocol;
 import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
 import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
@@ -24,6 +23,9 @@ public class AuthenticationKDCTests {
 
     public static final String c_ServerAddress = "127.0.0.1";
     public static int m_ServerPort = 5000;
+    public static final int c_ClientId = 9;
+    public static final int c_ClientNonce = 19;
+    public static final int c_TargetId = 35;
 
     private int getServerPort() {
         do {
@@ -55,16 +57,15 @@ public class AuthenticationKDCTests {
     }
 
     @Test
+
+    @Test
     public void canPerformRoundTripKDCResponseMessage() throws NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException, IOException {
         KDCResponseMessage writeKDC = new KDCResponseMessage();
-        int clientId = 9;
         SecretKey clientKey = CipherTools.GenerateSecretKey();
-        int clientNonce = 19;
-        int targetId = 35;
         SecretKey targetKey = CipherTools.GenerateSecretKey();
         SecretKey sessionKey = CipherTools.GenerateSecretKey();
 
-        writeKDC.encrypt(clientId, clientKey, clientNonce, targetId, targetKey, sessionKey);
+        writeKDC.encrypt(c_ClientId, clientKey, c_TargetId, targetKey, c_ClientNonce, sessionKey);
         byte[] encryptedBytes = writeKDC.getBytes();
 
         assertEquals(AuthenticationProtocol.HEADER_KDC_RESPONSE, encryptedBytes[0]);
@@ -72,10 +73,9 @@ public class AuthenticationKDCTests {
         byte[] encryptedBytesWithoutHeader = Arrays.copyOfRange(encryptedBytes, 1, encryptedBytes.length);
 
         try(ByteArrayInputStream bis = new ByteArrayInputStream(encryptedBytesWithoutHeader)) {
-            KDCResponseMessage readKDC = (KDCResponseMessage) new KDCResponseMessage().readFromStream(bis);
-            readKDC.decrypt(clientKey, clientNonce, targetId);
-            assertEquals(clientNonce, readKDC.getClientNonce());
-            assertEquals(targetId, readKDC.getTargetId());
+            KDCResponseMessage.KDCResponse readKDC = KDCResponseMessage.readFromStream(bis, clientKey);
+            assertEquals(c_ClientNonce, readKDC.getClientNonce());
+            assertEquals(c_TargetId, readKDC.getTargetId());
         }
     }
 }

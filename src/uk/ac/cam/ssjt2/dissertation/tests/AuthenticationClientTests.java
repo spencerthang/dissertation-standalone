@@ -8,7 +8,7 @@ import java.io.IOException;
 
 import static org.junit.Assert.*;
 
-public class AuthenticationClientTest {
+public class AuthenticationClientTests {
 
     public static final String c_ServerAddress = "127.0.0.1";
     public static final int c_ServerPort = 5000;

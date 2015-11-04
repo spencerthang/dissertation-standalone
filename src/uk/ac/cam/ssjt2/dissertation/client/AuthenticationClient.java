@@ -2,6 +2,7 @@ package uk.ac.cam.ssjt2.dissertation.client;
 
 import uk.ac.cam.ssjt2.dissertation.common.MessageBase;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -11,20 +12,19 @@ import java.util.ArrayList;
  */
 public class AuthenticationClient implements AutoCloseable {
 
-    private String m_ServerAddress;
-    private int m_ServerPort;
+    private final SecretKey m_ClientKey;
     private Socket m_Client = null;
     private ClientMessageHandler m_ClientHandler = null;
     private Thread m_ClientHandlerThread = null;
     public ArrayList<MessageBase> UnhandledMessages = new ArrayList<MessageBase>();
 
-    public AuthenticationClient(String serverAddress, int serverPort) {
-        m_ServerAddress = serverAddress;
-        m_ServerPort = serverPort;
+    public AuthenticationClient(SecretKey clientKey) {
+
+        m_ClientKey = clientKey;
     }
 
-    public boolean connect() throws IOException {
-        m_Client = new Socket(m_ServerAddress, m_ServerPort);
+    public boolean connect(String serverAddress, int serverPort) throws IOException {
+        m_Client = new Socket(serverAddress, serverPort);
         if(m_Client != null && m_Client.isConnected()) {
             m_ClientHandler = new ClientMessageHandler(m_Client.getInputStream(), m_Client.getOutputStream(), this);
             m_ClientHandlerThread = new Thread(m_ClientHandler);

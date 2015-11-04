@@ -77,18 +77,15 @@ public class AuthenticationKDCTests {
 
     @Test
     public void canPerformRoundTripKDCResponseMessage() throws NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, NoSuchPaddingException, IOException {
-        KDCResponseMessage writeKDC = new KDCResponseMessage();
         SecretKey clientKey = CipherTools.GenerateSecretKey();
         SecretKey targetKey = CipherTools.GenerateSecretKey();
         SecretKey sessionKey = CipherTools.GenerateSecretKey();
 
-        writeKDC.encrypt(c_ClientId, clientKey, c_TargetId, targetKey, c_ClientNonce, sessionKey);
+        KDCResponseMessage writeKDC = new KDCResponseMessage(c_ClientId, clientKey, c_TargetId, targetKey, c_ClientNonce, sessionKey);
         byte[] encryptedBytes = writeKDC.getBytes();
-
         assertEquals(AuthenticationProtocol.HEADER_KDC_RESPONSE, encryptedBytes[0]);
 
         byte[] encryptedBytesWithoutHeader = Arrays.copyOfRange(encryptedBytes, 1, encryptedBytes.length);
-
         try(ByteArrayInputStream bis = new ByteArrayInputStream(encryptedBytesWithoutHeader)) {
             KDCResponseMessage.KDCResponse readKDC = KDCResponseMessage.readFromStream(bis, clientKey);
             assertEquals(c_ClientNonce, readKDC.getClientNonce());

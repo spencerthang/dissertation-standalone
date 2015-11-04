@@ -22,11 +22,8 @@ public class KDCResponseMessage extends MessageBase {
     private int m_TargetId;
     private SecretKey m_SessionKey;
 
-    public KDCResponseMessage() {
+    public KDCResponseMessage(int clientId, SecretKey clientKey, int targetId, SecretKey targetKey, int clientNonce, SecretKey sessionKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException, BadPaddingException, IllegalBlockSizeException {
         super(AuthenticationProtocol.HEADER_KDC_RESPONSE);
-    }
-
-    public void encrypt(int clientId, SecretKey clientKey, int targetId, SecretKey targetKey, int clientNonce, SecretKey sessionKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException, BadPaddingException, IllegalBlockSizeException {
         CipherTools clientCipher = new CipherTools(clientKey);
         CipherTools targetCipher = new CipherTools(targetKey);
         byte[] sessionKeyBytes = sessionKey.getEncoded();

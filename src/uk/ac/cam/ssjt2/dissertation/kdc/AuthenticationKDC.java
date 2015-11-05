@@ -17,10 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AuthenticationKDC implements Runnable {
 
     private final int m_Port;
-    private Thread m_ServerThread = null;
 
     private Map<Integer, SecretKey> m_KeyStore = new ConcurrentHashMap<>();
-    public ArrayList<MessageBase> UnhandledMessages = new ArrayList<MessageBase>();
 
     public AuthenticationKDC(int port) {
         m_Port = port;
@@ -30,7 +28,7 @@ public class AuthenticationKDC implements Runnable {
         m_KeyStore.put(nodeId, key);
     }
 
-    public SecretKey getKey(int nodeId) {
+    protected SecretKey getKey(int nodeId) {
         return m_KeyStore.get(nodeId);
     }
 

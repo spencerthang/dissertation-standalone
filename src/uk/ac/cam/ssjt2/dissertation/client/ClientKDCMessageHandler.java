@@ -55,11 +55,11 @@ public class ClientKDCMessageHandler extends MessageHandlerBase {
     }
 
     public void log(String message) {
-        System.out.println("[Client] " + message);
+        System.out.println("[Client " + m_Client.getClientId() + "] " + message);
     }
 
     public void logError(String message) {
-        System.err.println("[Client] " + message);
+        System.out.println("[Client " + m_Client.getClientId() + "] " + message);
     }
 
 }

@@ -51,11 +51,11 @@ public class ServerMessageHandler extends MessageHandlerBase {
     }
 
     public void log(String message) {
-        System.out.println("[Server] " + message);
+        System.out.println("[Server " + m_Server.getServerId() + "] " + message);
     }
 
     public void logError(String message) {
-        System.err.println("[Server] " + message);
+        System.out.println("[Server " + m_Server.getServerId() + "] " + message);
     }
 
 }

@@ -26,8 +26,7 @@ public class KDCMessageHandler extends MessageHandlerBase {
     }
 
     @Override
-    public void handleMessage() throws IOException {
-        byte header = (byte) m_InputStream.read();
+    public void processMessage(InputStream inputStream, byte header) throws IOException {
         log("Received packet header: " + header);
 
         switch(header) {
@@ -36,7 +35,7 @@ public class KDCMessageHandler extends MessageHandlerBase {
                 break;
             case AuthenticationProtocol.HEADER_KDC_REQUEST:
                 log("Received KDC request message.");
-                KDCRequestMessage message = KDCRequestMessage.readFromStream(m_InputStream);
+                KDCRequestMessage message = KDCRequestMessage.readFromStream(inputStream);
                 log("KDC request from client " + message.getClientId() + " for target " + message.getTargetId() + " with nonce " + message.getClientNonce());
 
                 SecretKey clientKey = m_KDC.getKey(message.getClientId());

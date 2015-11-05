@@ -21,8 +21,7 @@ public class ClientKDCMessageHandler extends MessageHandlerBase {
     }
 
     @Override
-    public void handleMessage() throws IOException {
-        byte header = (byte) m_InputStream.read();
+    public void processMessage(InputStream inputStream, byte header) throws IOException {
         log("Received packet header: " + header);
 
         switch(header) {
@@ -32,7 +31,7 @@ public class ClientKDCMessageHandler extends MessageHandlerBase {
             case AuthenticationProtocol.HEADER_KDC_RESPONSE:
                 log("Received KDC response message.");
                 try {
-                    KDCResponseMessage.KDCResponse response = KDCResponseMessage.readFromStream(m_InputStream, m_Client.getClientKey());
+                    KDCResponseMessage.KDCResponse response = KDCResponseMessage.readFromStream(inputStream, m_Client.getClientKey());
 
                     if(response.getClientNonce() != m_Client.getNonce()) {
                         logError("KDC response verification failed, nonce mismatch. Expected: " + m_Client.getNonce() + ", expected: " + response.getClientNonce());

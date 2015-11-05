@@ -1,14 +1,16 @@
 package uk.ac.cam.ssjt2.dissertation.server;
 
 import uk.ac.cam.ssjt2.dissertation.common.AuthenticationProtocol;
+import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
 import uk.ac.cam.ssjt2.dissertation.common.HexTools;
 import uk.ac.cam.ssjt2.dissertation.common.MessageHandlerBase;
+import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeMessage;
+import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeResponseMessage;
 import uk.ac.cam.ssjt2.dissertation.common.messages.ServerHandshakeMessage;
 
 import javax.crypto.SecretKey;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.util.Random;
 
 /**
  * Created by Spencer on 4/11/2015.
@@ -17,8 +19,8 @@ public class ServerMessageHandler extends MessageHandlerBase {
 
     private final AuthenticationServer m_Server;
     private int m_ClientId;
-    private SecretKey m_SessionKey;
     private boolean m_Authenticated = false;
+    private Integer m_Nonce;
 
     public ServerMessageHandler(InputStream inputStream, OutputStream outputStream, AuthenticationServer server) {
         super(inputStream, outputStream);
@@ -26,8 +28,7 @@ public class ServerMessageHandler extends MessageHandlerBase {
     }
 
     @Override
-    public void handleMessage() throws IOException {
-        byte header = (byte) m_InputStream.read();
+    public void processMessage(InputStream inputStream, byte header) throws IOException {
         log("Received packet header: " + header);
 
         switch(header) {
@@ -37,17 +38,52 @@ public class ServerMessageHandler extends MessageHandlerBase {
             case AuthenticationProtocol.HEADER_SERVER_HANDSHAKE:
                 log("Received server handshake message.");
                 try {
-                    ServerHandshakeMessage.ServerHandshakeResult result = ServerHandshakeMessage.readHandshakeFromStream(m_InputStream, m_Server.getServerKey());
+                    ServerHandshakeMessage.ServerHandshakeResult result = ServerHandshakeMessage.readHandshakeFromStream(inputStream, m_Server.getServerKey());
                     m_ClientId = result.getClientId();
                     m_SessionKey = result.getSessionKey();
                     log("Handshake from client " + result.getClientId() + " decoded, session key: " + HexTools.bytesToHex(m_SessionKey.getEncoded()));
+
+                    Random rand = new Random();
+                    m_Nonce = rand.nextInt();
+                    sendEncrypted(m_OutputStream, new ServerChallengeMessage(m_Nonce).getBytes());
+                    log("Sent challenge with nonce " + m_Nonce);
                 } catch (Exception e) {
                     logError("Error occurred while trying to decode server handshake.");
                     e.printStackTrace();
                 }
                 break;
+            case AuthenticationProtocol.HEADER_SERVER_CHALLENGE_RESPONSE:
+                log("Received server handshake challenge response.");
+                int nonce = ServerChallengeResponseMessage.readFromStream(inputStream);
+                log("Decoded challenge response nonce: " + nonce);
+
+                if(m_Nonce != null && nonce == m_Nonce - 1) {
+                    m_Authenticated = true;
+                    log("Nonce accepted, client is now authenticated.");
+                } else {
+                    logError("None rejected, client is not authenticated.");
+                }
+                break;
             default:
                 throw new IllegalArgumentException("Unrecognized message header: " + header);
+        }
+    }
+
+    public void sendEncrypted(OutputStream outputStream, byte[] message) throws IOException {
+        DataOutputStream dos = new DataOutputStream(outputStream);
+        // Encrypt into byte array
+        CipherTools clientCipher = null;
+        try {
+            clientCipher = new CipherTools(m_SessionKey);
+            byte[] encrypted = clientCipher.encrypt(message);
+            dos.write(AuthenticationProtocol.HEADER_SESSION_ENCRYPTED);
+            dos.writeInt(encrypted.length);
+            dos.write(encrypted);
+            dos.flush();
+        } catch (Exception e) {
+            logError("Failed to send session encrypted message.");
+            e.printStackTrace();
+            return;
         }
     }
 

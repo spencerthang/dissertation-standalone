@@ -1,5 +1,6 @@
 package uk.ac.cam.ssjt2.dissertation.common;
 
+import javax.crypto.SecretKey;
 import java.io.*;
 
 /**
@@ -7,9 +8,10 @@ import java.io.*;
  */
 public abstract class MessageHandlerBase implements Runnable, AutoCloseable {
 
-    protected final InputStream m_InputStream;
     protected final OutputStream m_OutputStream;
     protected final boolean m_LeaveOpen;
+    protected SecretKey m_SessionKey = null;
+    private final InputStream m_InputStream;
 
     public MessageHandlerBase(InputStream inputStream, OutputStream outputStream) {
         this(inputStream, outputStream, false);
@@ -25,7 +27,14 @@ public abstract class MessageHandlerBase implements Runnable, AutoCloseable {
     public void run() {
         while(m_InputStream != null) {
             try {
-                handleMessage();
+                byte header = (byte) m_InputStream.read();
+                if(header == AuthenticationProtocol.HEADER_SESSION_ENCRYPTED) {
+                    try(ByteArrayInputStream bis = new ByteArrayInputStream(readSessionEncryptedMessage())) {
+                        processMessage(bis, (byte) bis.read());
+                    }
+                } else {
+                    processMessage(m_InputStream, header);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 break;
@@ -44,5 +53,24 @@ public abstract class MessageHandlerBase implements Runnable, AutoCloseable {
         }
     }
 
-    public abstract void handleMessage() throws IOException;
+    public abstract void processMessage(InputStream stream, byte header) throws IOException;
+
+    private byte[] readSessionEncryptedMessage() throws IOException {
+        DataInputStream dis = new DataInputStream(m_InputStream);
+
+        // Read the encrypted message
+        int messageLength = dis.readInt();
+        byte[] encryptedMessage = new byte[messageLength];
+        dis.readFully(encryptedMessage);
+
+        // Decrypt into byte array
+        CipherTools clientCipher = null;
+        try {
+            clientCipher = new CipherTools(m_SessionKey);
+            return clientCipher.decrypt(encryptedMessage);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

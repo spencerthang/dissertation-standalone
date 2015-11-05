@@ -72,6 +72,8 @@ public class IntegrationTests {
         assertTrue(client.getEncryptedMessageToServer() != null);
 
         client.connectToServer(c_ServerAddress, targetPort);
+
+        Thread.sleep(1000);
     }
 
     private int createKDCServer() {

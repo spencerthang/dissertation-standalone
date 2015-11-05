@@ -18,6 +18,7 @@ public class AuthenticationClient implements AutoCloseable {
 
     private Socket m_KDCClient = null;
     private Socket m_ServerClient = null;
+
     private SecretKey m_SessionKey = null;
     private byte[] m_EncryptedMessageToServer;
 
@@ -53,8 +54,8 @@ public class AuthenticationClient implements AutoCloseable {
         m_ServerClient = new Socket(targetAddress, serverPort);
         if(m_ServerClient != null && m_ServerClient.isConnected()) {
             // Start message handling
-            ClientServerMessageHandler kdcHandler = new ClientServerMessageHandler(m_KDCClient.getInputStream(), m_KDCClient.getOutputStream(), this);
-            Thread serverHandlerThread = new Thread(kdcHandler);
+            ClientServerMessageHandler serverHandler = new ClientServerMessageHandler(m_ServerClient.getInputStream(), m_ServerClient.getOutputStream(), this);
+            Thread serverHandlerThread = new Thread(serverHandler);
             serverHandlerThread.start();
 
             // Send Server Handshake Message
@@ -98,6 +99,10 @@ public class AuthenticationClient implements AutoCloseable {
 
     protected void setSessionKey(SecretKey sessionKey) {
         m_SessionKey = sessionKey;
+    }
+
+    protected SecretKey getSessionKey() {
+        return m_SessionKey;
     }
 
     public byte[] getEncryptedMessageToServer() {

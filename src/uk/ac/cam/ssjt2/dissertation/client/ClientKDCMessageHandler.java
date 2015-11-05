@@ -23,32 +23,40 @@ public class ClientKDCMessageHandler extends MessageHandlerBase {
     @Override
     public void handleMessage() throws IOException {
         byte header = (byte) m_InputStream.read();
-        System.out.println("[Client] Received packet header: " + header);
+        log("Received packet header: " + header);
 
         switch(header) {
             case AuthenticationProtocol.HEADER_TEST:
-                System.out.println("[Client] Received test message.");
+                log("Received test message.");
                 break;
             case AuthenticationProtocol.HEADER_KDC_RESPONSE:
-                System.out.println("[Client] Received KDC response message.");
+                log("Received KDC response message.");
                 try {
                     KDCResponseMessage.KDCResponse response = KDCResponseMessage.readFromStream(m_InputStream, m_Client.getClientKey());
 
                     if(response.getClientNonce() != m_Client.getNonce()) {
-                        System.err.println("[Client] KDC response verification failed, nonce mismatch. Expected: " + m_Client.getNonce() + ", expected: " + response.getClientNonce());
+                        logError("KDC response verification failed, nonce mismatch. Expected: " + m_Client.getNonce() + ", expected: " + response.getClientNonce());
                     } else if(response.getTargetId() != m_Client.getTargetId()) {
-                        System.err.println("[Client] KDC response verification failed, targetId mismatch. Expected: " + m_Client.getTargetId() + ", expected: " + response.getTargetId());
+                        logError("KDC response verification failed, targetId mismatch. Expected: " + m_Client.getTargetId() + ", expected: " + response.getTargetId());
                     } else {
-                        System.out.println("[Client] KDC response decoded, target: " + response.getTargetId() + ", nonce: " + response.getClientNonce());
+                        log("KDC response decoded, target: " + response.getTargetId() + ", nonce: " + response.getClientNonce());
                     }
                 } catch (Exception e) {
-                    System.err.println("[Client] Error occurred while decoding KDC response");
+                    logError("Error occurred while decoding KDC response");
                     e.printStackTrace();
                 }
                 break;
             default:
-                System.err.println("Unrecognized message header: " + header);
+                logError("Unrecognized message header: " + header);
         }
+    }
+
+    public void log(String message) {
+        System.out.println("[Client] " + message);
+    }
+
+    public void logError(String message) {
+        System.err.println("[Client] " + message);
     }
 
 }

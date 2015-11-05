@@ -55,12 +55,9 @@ public class KDCMessageHandler extends MessageHandlerBase {
         }
     }
 
-    public void log(String message) {
-        System.out.println("[KDC] " + message);
-    }
-
-    public void logError(String message) {
-        System.err.println("[KDC] " + message);
+    @Override
+    protected String getLogTag() {
+        return "[KDC] ";
     }
 
 }

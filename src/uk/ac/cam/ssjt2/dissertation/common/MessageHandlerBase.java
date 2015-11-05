@@ -69,7 +69,7 @@ public abstract class MessageHandlerBase implements Runnable, AutoCloseable {
             clientCipher = new CipherTools(m_SessionKey);
             return clientCipher.decrypt(encryptedMessage);
         } catch (Exception e) {
-            System.err.println("Failed to read session encrypted message.");
+            logError("Failed to read session encrypted message.");
             e.printStackTrace();
             return null;
         }
@@ -87,9 +87,19 @@ public abstract class MessageHandlerBase implements Runnable, AutoCloseable {
             dos.write(encrypted);
             dos.flush();
         } catch (Exception e) {
-            System.err.println("Failed to write session encrypted message.");
+            logError("Failed to write session encrypted message.");
             e.printStackTrace();
             return;
         }
+    }
+
+    protected abstract String getLogTag();
+
+    protected void log(String message) {
+        System.out.println(getLogTag() + message);
+    }
+
+    protected void logError(String message) {
+        System.out.println(getLogTag() + message);
     }
 }

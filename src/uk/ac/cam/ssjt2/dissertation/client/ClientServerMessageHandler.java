@@ -1,12 +1,13 @@
 package uk.ac.cam.ssjt2.dissertation.client;
 
 import uk.ac.cam.ssjt2.dissertation.common.AuthenticationProtocol;
-import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
 import uk.ac.cam.ssjt2.dissertation.common.MessageHandlerBase;
 import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeMessage;
 import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeResponseMessage;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Created by Spencer on 5/11/2015.
@@ -40,11 +41,8 @@ public class ClientServerMessageHandler extends MessageHandlerBase {
         }
     }
 
-    public void log(String message) {
-        System.out.println("[Client " + m_Client.getClientId() + "] " + message);
-    }
-
-    public void logError(String message) {
-        System.out.println("[Client " + m_Client.getClientId() + "] " + message);
+    @Override
+    protected String getLogTag() {
+        return "[Client " + m_Client.getClientId() + "] ";
     }
 }

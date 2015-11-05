@@ -31,7 +31,7 @@ public class ServerMessageHandler extends MessageHandlerBase {
     public void processMessage(InputStream inputStream, byte header) throws IOException {
         log("Received packet header: " + header);
 
-        switch(header) {
+        switch (header) {
             case AuthenticationProtocol.HEADER_TEST:
                 log("Received test message.");
                 break;
@@ -57,7 +57,7 @@ public class ServerMessageHandler extends MessageHandlerBase {
                 int nonce = ServerChallengeResponseMessage.readFromStream(inputStream);
                 log("Decoded challenge response nonce: " + nonce);
 
-                if(m_Nonce != null && nonce == m_Nonce - 1) {
+                if (m_Nonce != null && nonce == m_Nonce - 1) {
                     m_Authenticated = true;
                     log("Nonce accepted, client is now authenticated.");
                 } else {
@@ -68,12 +68,9 @@ public class ServerMessageHandler extends MessageHandlerBase {
                 throw new IllegalArgumentException("Unrecognized message header: " + header);
         }
     }
-    public void log(String message) {
-        System.out.println("[Server " + m_Server.getServerId() + "] " + message);
-    }
 
-    public void logError(String message) {
-        System.out.println("[Server " + m_Server.getServerId() + "] " + message);
+    @Override
+    protected String getLogTag() {
+        return "[Server " + m_Server.getServerId() + "] ";
     }
-
 }

@@ -53,12 +53,8 @@ public class ClientKDCMessageHandler extends MessageHandlerBase {
         }
     }
 
-    public void log(String message) {
-        System.out.println("[Client " + m_Client.getClientId() + "] " + message);
+    @Override
+    protected String getLogTag() {
+        return "[Client " + m_Client.getClientId() + "] ";
     }
-
-    public void logError(String message) {
-        System.out.println("[Client " + m_Client.getClientId() + "] " + message);
-    }
-
 }

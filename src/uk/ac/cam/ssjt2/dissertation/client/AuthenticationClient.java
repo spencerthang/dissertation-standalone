@@ -1,53 +1,72 @@
 package uk.ac.cam.ssjt2.dissertation.client;
 
-import uk.ac.cam.ssjt2.dissertation.common.MessageBase;
+import uk.ac.cam.ssjt2.dissertation.common.messages.KDCRequestMessage;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by Spencer on 1/11/2015.
  */
 public class AuthenticationClient implements AutoCloseable {
 
-    private final int m_NodeId;
+    private final int m_ClientId;
     private final SecretKey m_ClientKey;
-    private Socket m_Client = null;
-    private ClientMessageHandler m_ClientHandler = null;
-    private Thread m_ClientHandlerThread = null;
-    public ArrayList<MessageBase> UnhandledMessages = new ArrayList<MessageBase>();
 
-    public AuthenticationClient(int nodeId, SecretKey clientKey) {
-        m_NodeId = nodeId;
+    private Socket m_KDCClient = null;
+    private Socket m_ServerClient = null;
+    private SecretKey m_SessionKey = null;
+
+    private int m_Nonce;
+    private int m_TargetId;
+
+    public AuthenticationClient(int clientId, SecretKey clientKey) {
+        m_ClientId = clientId;
         m_ClientKey = clientKey;
     }
 
-    public boolean connect(String serverAddress, int serverPort) throws IOException {
-        m_Client = new Socket(serverAddress, serverPort);
-        if(m_Client != null && m_Client.isConnected()) {
-            m_ClientHandler = new ClientMessageHandler(m_Client.getInputStream(), m_Client.getOutputStream(), this);
-            m_ClientHandlerThread = new Thread(m_ClientHandler);
-            m_ClientHandlerThread.start();
+    public boolean startSessionKeyRetrieval(String kdcAddress, int kdcPort, int targetId) throws IOException {
+        m_KDCClient = new Socket(kdcAddress, kdcPort);
+        if(m_KDCClient != null && m_KDCClient.isConnected()) {
+            // Start message handling
+            ClientKDCMessageHandler kdcHandler = new ClientKDCMessageHandler(m_KDCClient.getInputStream(), m_KDCClient.getOutputStream(), this);
+            Thread kdcHandlerThread = new Thread(kdcHandler);
+            kdcHandlerThread.start();
+
+            // Send KDC Request Message
+            Random rand = new Random();
+            m_Nonce = rand.nextInt();
+            m_TargetId = targetId;
+            KDCRequestMessage request = new KDCRequestMessage(m_ClientId, m_TargetId, m_Nonce);
+            m_KDCClient.getOutputStream().write(request.getBytes());
             return true;
         } else {
             return false;
         }
     }
 
-    public void sendMessage(MessageBase message) throws IOException {
-        m_Client.getOutputStream().write(message.getBytes());
-    }
-
     @Override
     public void close() throws Exception {
-        if(m_Client != null) {
-            m_Client.close();
+        if(m_KDCClient != null) {
+            m_KDCClient.close();
+        }
+        if(m_ServerClient != null) {
+            m_ServerClient.close();
         }
     }
 
     protected SecretKey getClientKey() {
         return m_ClientKey;
     }
+
+    protected int getNonce() {
+        return m_Nonce;
+    }
+
+    protected int getTargetId() {
+        return m_TargetId;
+    }
+
 }

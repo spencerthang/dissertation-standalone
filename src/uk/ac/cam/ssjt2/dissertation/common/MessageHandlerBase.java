@@ -28,6 +28,7 @@ public abstract class MessageHandlerBase implements Runnable, AutoCloseable {
                 handleMessage();
             } catch (IOException e) {
                 e.printStackTrace();
+                break;
             }
         }
     }

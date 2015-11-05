@@ -1,6 +1,7 @@
 package uk.ac.cam.ssjt2.dissertation.client;
 
 import uk.ac.cam.ssjt2.dissertation.common.messages.KDCRequestMessage;
+import uk.ac.cam.ssjt2.dissertation.common.messages.ServerHandshakeMessage;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
@@ -42,6 +43,23 @@ public class AuthenticationClient implements AutoCloseable {
             m_TargetId = targetId;
             KDCRequestMessage request = new KDCRequestMessage(m_ClientId, m_TargetId, m_Nonce);
             m_KDCClient.getOutputStream().write(request.getBytes());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean connectToServer(String targetAddress, int serverPort) throws IOException {
+        m_ServerClient = new Socket(targetAddress, serverPort);
+        if(m_ServerClient != null && m_ServerClient.isConnected()) {
+            // Start message handling
+            ClientServerMessageHandler kdcHandler = new ClientServerMessageHandler(m_KDCClient.getInputStream(), m_KDCClient.getOutputStream(), this);
+            Thread serverHandlerThread = new Thread(kdcHandler);
+            serverHandlerThread.start();
+
+            // Send Server Handshake Message
+            ServerHandshakeMessage request = new ServerHandshakeMessage(m_EncryptedMessageToServer);
+            m_ServerClient.getOutputStream().write(request.getBytes());
             return true;
         } else {
             return false;

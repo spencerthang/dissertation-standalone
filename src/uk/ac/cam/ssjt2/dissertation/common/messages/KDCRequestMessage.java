@@ -27,9 +27,11 @@ public class KDCRequestMessage extends MessageBase {
     }
 
     public static KDCRequestMessage readFromStream(InputStream inputStream) throws IOException {
-        try(DataInputStream dis = new DataInputStream(inputStream)) {
-            return new KDCRequestMessage(dis.readInt(), dis.readInt(), dis.readInt());
-        }
+        DataInputStream dis = new DataInputStream(inputStream);
+        int clientId = dis.readInt();
+        int targetId = dis.readInt();
+        int clientNonce = dis.readInt();
+        return new KDCRequestMessage(clientId, targetId, clientNonce);
     }
 
     public int getClientId() {

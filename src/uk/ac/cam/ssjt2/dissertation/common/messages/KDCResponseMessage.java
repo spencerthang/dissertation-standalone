@@ -58,29 +58,28 @@ public class KDCResponseMessage extends MessageBase {
     // This function decrypts and extract information from a KDC Response message.
     // This function does NOT verify the nonce or target ID.
     public static KDCResponse readFromStream(InputStream inputStream, SecretKey clientKey) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
-        try(DataInputStream dis = new DataInputStream(inputStream)) {
-            int messageLength = dis.readInt();
-            byte[] encryptedMessage = new byte[messageLength];
-            dis.readFully(encryptedMessage);
+        DataInputStream dis = new DataInputStream(inputStream);
+        int messageLength = dis.readInt();
+        byte[] encryptedMessage = new byte[messageLength];
+        dis.readFully(encryptedMessage);
 
-            CipherTools clientCipher = new CipherTools(clientKey);
-            byte[] decrypted = clientCipher.decrypt(encryptedMessage);
+        CipherTools clientCipher = new CipherTools(clientKey);
+        byte[] decrypted = clientCipher.decrypt(encryptedMessage);
 
-            try(DataInputStream decryptedDis = new DataInputStream(new ByteArrayInputStream(decrypted))) {
-                int sessionKeyLength = decryptedDis.readInt();
-                byte[] sessionKeyBytes = new byte[sessionKeyLength];
-                decryptedDis.readFully(sessionKeyBytes);
-                SecretKey sessionKey = new SecretKeySpec(sessionKeyBytes, 0, sessionKeyBytes.length, CipherTools.CipherTransformation);
+        try(DataInputStream decryptedDis = new DataInputStream(new ByteArrayInputStream(decrypted))) {
+            int sessionKeyLength = decryptedDis.readInt();
+            byte[] sessionKeyBytes = new byte[sessionKeyLength];
+            decryptedDis.readFully(sessionKeyBytes);
+            SecretKey sessionKey = new SecretKeySpec(sessionKeyBytes, 0, sessionKeyBytes.length, CipherTools.CipherTransformation);
 
-                int responseTargetId = decryptedDis.readInt();
-                int responseClientNonce = decryptedDis.readInt();
+            int responseTargetId = decryptedDis.readInt();
+            int responseClientNonce = decryptedDis.readInt();
 
-                int targetEncryptedMessageLength = decryptedDis.readInt();
-                byte[] targetEncryptedMessageBytes = new byte[targetEncryptedMessageLength];
-                decryptedDis.readFully(targetEncryptedMessageBytes);
+            int targetEncryptedMessageLength = decryptedDis.readInt();
+            byte[] targetEncryptedMessageBytes = new byte[targetEncryptedMessageLength];
+            decryptedDis.readFully(targetEncryptedMessageBytes);
 
-                return new KDCResponse(responseTargetId, responseClientNonce, sessionKey, targetEncryptedMessageBytes);
-            }
+            return new KDCResponse(responseTargetId, responseClientNonce, sessionKey, targetEncryptedMessageBytes);
         }
     }
 

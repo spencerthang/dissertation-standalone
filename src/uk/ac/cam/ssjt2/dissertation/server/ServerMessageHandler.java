@@ -1,6 +1,7 @@
 package uk.ac.cam.ssjt2.dissertation.server;
 
 import uk.ac.cam.ssjt2.dissertation.common.AuthenticationProtocol;
+import uk.ac.cam.ssjt2.dissertation.common.HexTools;
 import uk.ac.cam.ssjt2.dissertation.common.MessageHandlerBase;
 import uk.ac.cam.ssjt2.dissertation.common.messages.ServerHandshakeMessage;
 
@@ -39,7 +40,7 @@ public class ServerMessageHandler extends MessageHandlerBase {
                     ServerHandshakeMessage.ServerHandshakeResult result = ServerHandshakeMessage.readHandshakeFromStream(m_InputStream, m_Server.getServerKey());
                     m_ClientId = result.getClientId();
                     m_SessionKey = result.getSessionKey();
-                    log("Handshake from client " + result.getClientId() + " decoded.");
+                    log("Handshake from client " + result.getClientId() + " decoded, session key: " + HexTools.bytesToHex(m_SessionKey.getEncoded()));
                 } catch (Exception e) {
                     logError("Error occurred while trying to decode server handshake.");
                     e.printStackTrace();

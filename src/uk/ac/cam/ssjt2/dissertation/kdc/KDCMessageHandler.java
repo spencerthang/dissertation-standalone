@@ -2,6 +2,7 @@ package uk.ac.cam.ssjt2.dissertation.kdc;
 
 import uk.ac.cam.ssjt2.dissertation.common.AuthenticationProtocol;
 import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
+import uk.ac.cam.ssjt2.dissertation.common.HexTools;
 import uk.ac.cam.ssjt2.dissertation.common.MessageHandlerBase;
 import uk.ac.cam.ssjt2.dissertation.common.messages.KDCRequestMessage;
 import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
@@ -44,6 +45,7 @@ public class KDCMessageHandler extends MessageHandlerBase {
                     SecretKey sessionKey = CipherTools.GenerateSecretKey();
                     KDCResponseMessage response = new KDCResponseMessage(message.getClientId(), clientKey, message.getTargetId(), targetKey, message.getClientNonce(), sessionKey);
                     m_OutputStream.write(response.getBytes());
+                    log("Send KDC response message, generated session key: " + HexTools.bytesToHex(sessionKey.getEncoded()));
                 } catch (Exception e) {
                     logError("Error occurred while forming KDC response to " + message.getClientId());
                     e.printStackTrace();

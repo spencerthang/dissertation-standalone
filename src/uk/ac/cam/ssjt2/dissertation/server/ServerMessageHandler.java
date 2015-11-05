@@ -45,7 +45,7 @@ public class ServerMessageHandler extends MessageHandlerBase {
 
                     Random rand = new Random();
                     m_Nonce = rand.nextInt();
-                    sendEncrypted(m_OutputStream, new ServerChallengeMessage(m_Nonce).getBytes());
+                    writeEncrypted(m_OutputStream, new ServerChallengeMessage(m_Nonce).getBytes());
                     log("Sent challenge with nonce " + m_Nonce);
                 } catch (Exception e) {
                     logError("Error occurred while trying to decode server handshake.");
@@ -68,25 +68,6 @@ public class ServerMessageHandler extends MessageHandlerBase {
                 throw new IllegalArgumentException("Unrecognized message header: " + header);
         }
     }
-
-    public void sendEncrypted(OutputStream outputStream, byte[] message) throws IOException {
-        DataOutputStream dos = new DataOutputStream(outputStream);
-        // Encrypt into byte array
-        CipherTools clientCipher = null;
-        try {
-            clientCipher = new CipherTools(m_SessionKey);
-            byte[] encrypted = clientCipher.encrypt(message);
-            dos.write(AuthenticationProtocol.HEADER_SESSION_ENCRYPTED);
-            dos.writeInt(encrypted.length);
-            dos.write(encrypted);
-            dos.flush();
-        } catch (Exception e) {
-            logError("Failed to send session encrypted message.");
-            e.printStackTrace();
-            return;
-        }
-    }
-
     public void log(String message) {
         System.out.println("[Server " + m_Server.getServerId() + "] " + message);
     }

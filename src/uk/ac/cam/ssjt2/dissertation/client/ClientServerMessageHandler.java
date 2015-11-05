@@ -33,28 +33,10 @@ public class ClientServerMessageHandler extends MessageHandlerBase {
                 log("Received server handshake challenge.");
                 int nonce = ServerChallengeMessage.readFromStream(inputStream);
                 log("Decoded challenge nonce: " + nonce);
-                sendEncrypted(m_OutputStream, new ServerChallengeResponseMessage(nonce - 1).getBytes());
+                writeEncrypted(m_OutputStream, new ServerChallengeResponseMessage(nonce - 1).getBytes());
                 break;
             default:
                 logError("Unrecognized message header: " + header);
-        }
-    }
-
-    public void sendEncrypted(OutputStream outputStream, byte[] message) throws IOException {
-        DataOutputStream dos = new DataOutputStream(outputStream);
-        // Encrypt into byte array
-        CipherTools clientCipher = null;
-        try {
-            clientCipher = new CipherTools(m_SessionKey);
-            byte[] encrypted = clientCipher.encrypt(message);
-            dos.write(AuthenticationProtocol.HEADER_SESSION_ENCRYPTED);
-            dos.writeInt(encrypted.length);
-            dos.write(encrypted);
-            dos.flush();
-        } catch (Exception e) {
-            logError("Failed to send session encrypted message.");
-            e.printStackTrace();
-            return;
         }
     }
 

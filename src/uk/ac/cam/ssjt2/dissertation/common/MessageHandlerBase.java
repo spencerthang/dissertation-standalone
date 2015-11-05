@@ -69,8 +69,27 @@ public abstract class MessageHandlerBase implements Runnable, AutoCloseable {
             clientCipher = new CipherTools(m_SessionKey);
             return clientCipher.decrypt(encryptedMessage);
         } catch (Exception e) {
+            System.err.println("Failed to read session encrypted message.");
             e.printStackTrace();
             return null;
+        }
+    }
+
+    protected void writeEncrypted(OutputStream outputStream, byte[] message) throws IOException {
+        DataOutputStream dos = new DataOutputStream(outputStream);
+        // Encrypt into byte array
+        CipherTools clientCipher = null;
+        try {
+            clientCipher = new CipherTools(m_SessionKey);
+            byte[] encrypted = clientCipher.encrypt(message);
+            dos.write(AuthenticationProtocol.HEADER_SESSION_ENCRYPTED);
+            dos.writeInt(encrypted.length);
+            dos.write(encrypted);
+            dos.flush();
+        } catch (Exception e) {
+            System.err.println("Failed to write session encrypted message.");
+            e.printStackTrace();
+            return;
         }
     }
 }

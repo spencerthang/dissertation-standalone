@@ -1,11 +1,8 @@
 package uk.ac.cam.ssjt2.dissertation.server;
 
 import uk.ac.cam.ssjt2.dissertation.common.AuthenticationProtocol;
-import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
 import uk.ac.cam.ssjt2.dissertation.common.MessageHandlerBase;
-import uk.ac.cam.ssjt2.dissertation.common.messages.KDCRequestMessage;
-import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
-import uk.ac.cam.ssjt2.dissertation.common.messages.TestMessage;
+import uk.ac.cam.ssjt2.dissertation.common.messages.ServerHandshakeMessage;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
@@ -18,6 +15,9 @@ import java.io.OutputStream;
 public class ServerMessageHandler extends MessageHandlerBase {
 
     private final AuthenticationServer m_Server;
+    private int m_ClientId;
+    private SecretKey m_SessionKey;
+    private boolean m_Authenticated = false;
 
     public ServerMessageHandler(InputStream inputStream, OutputStream outputStream, AuthenticationServer server) {
         super(inputStream, outputStream);
@@ -33,19 +33,15 @@ public class ServerMessageHandler extends MessageHandlerBase {
             case AuthenticationProtocol.HEADER_TEST:
                 log("Received test message.");
                 break;
-            case AuthenticationProtocol.HEADER_KDC_REQUEST:
-                log("Received KDC request message.");
-                KDCRequestMessage message = KDCRequestMessage.readFromStream(m_InputStream);
-                log("KDC request from client " + message.getClientId() + " for target " + message.getTargetId() + " with nonce " + message.getClientNonce());
-
-                SecretKey clientKey = m_Server.getKey(message.getClientId());
-                SecretKey targetKey = m_Server.getKey(message.getTargetId());
+            case AuthenticationProtocol.HEADER_SERVER_HANDSHAKE:
+                log("Received server handshake message.");
                 try {
-                    SecretKey sessionKey = CipherTools.GenerateSecretKey();
-                    KDCResponseMessage response = new KDCResponseMessage(message.getClientId(), clientKey, message.getTargetId(), targetKey, message.getClientNonce(), sessionKey);
-                    m_OutputStream.write(response.getBytes());
+                    ServerHandshakeMessage.ServerHandshakeResult result = ServerHandshakeMessage.readHandshakeFromStream(m_InputStream, m_Server.getServerKey());
+                    m_ClientId = result.getClientId();
+                    m_SessionKey = result.getSessionKey();
+                    log("Handshake from client " + result.getClientId() + " decoded.");
                 } catch (Exception e) {
-                    logError("Error occurred while forming KDC response to " + message.getClientId());
+                    logError("Error occurred while trying to decode server handshake.");
                     e.printStackTrace();
                 }
                 break;

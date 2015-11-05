@@ -83,7 +83,7 @@ public class AuthenticationServerTests {
             encryptedMessageToTarget = readKDC.getTargetEncryptedMessage();
         }
 
-        ServerHandshakeMessage writeHandshake = new ServerHandshakeMessage(c_ClientId, encryptedMessageToTarget);
+        ServerHandshakeMessage writeHandshake = new ServerHandshakeMessage(encryptedMessageToTarget);
         byte[] handshakeBytes = writeHandshake.getBytes();
 
         assertEquals(AuthenticationProtocol.HEADER_SERVER_HANDSHAKE, handshakeBytes[0]);

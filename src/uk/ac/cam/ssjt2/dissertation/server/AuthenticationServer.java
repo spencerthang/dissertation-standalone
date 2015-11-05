@@ -49,4 +49,8 @@ public class AuthenticationServer implements Runnable {
     protected SecretKey getServerKey() {
         return m_ServerKey;
     }
+
+    public int getServerId() {
+        return m_ServerId;
+    }
 }

@@ -22,7 +22,7 @@ import java.security.NoSuchAlgorithmException;
 public class ServerHandshakeMessage extends MessageBase {
 
     // Used by client to create a handshake message
-    public ServerHandshakeMessage(int clientId, byte[] encryptedMessageToServer) throws IOException {
+    public ServerHandshakeMessage(byte[] encryptedMessageToServer) throws IOException {
         super(AuthenticationProtocol.HEADER_SERVER_HANDSHAKE);
         m_Buffer.writeInt(encryptedMessageToServer.length);
         m_Buffer.write(encryptedMessageToServer);

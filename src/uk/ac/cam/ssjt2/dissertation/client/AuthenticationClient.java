@@ -18,6 +18,7 @@ public class AuthenticationClient implements AutoCloseable {
     private Socket m_KDCClient = null;
     private Socket m_ServerClient = null;
     private SecretKey m_SessionKey = null;
+    private byte[] m_EncryptedMessageToServer;
 
     private int m_Nonce;
     private int m_TargetId;
@@ -69,4 +70,23 @@ public class AuthenticationClient implements AutoCloseable {
         return m_TargetId;
     }
 
+    protected int getClientId() {
+        return m_ClientId;
+    }
+
+    public boolean hasSessionKey() {
+        return m_SessionKey != null;
+    }
+
+    protected void setSessionKey(SecretKey sessionKey) {
+        m_SessionKey = sessionKey;
+    }
+
+    public byte[] getEncryptedMessageToServer() {
+        return m_EncryptedMessageToServer;
+    }
+
+    public void setEncryptedMessageToServer(byte[] encryptedMessageToServer) {
+        m_EncryptedMessageToServer = encryptedMessageToServer;
+    }
 }

@@ -41,6 +41,9 @@ public class ClientKDCMessageHandler extends MessageHandlerBase {
                     } else {
                         log("KDC response decoded, target: " + response.getTargetId() + ", nonce: " + response.getClientNonce());
                     }
+
+                    m_Client.setSessionKey(response.getSessionKey());
+                    m_Client.setEncryptedMessageToServer(response.getTargetEncryptedMessage());
                 } catch (Exception e) {
                     logError("Error occurred while decoding KDC response");
                     e.printStackTrace();

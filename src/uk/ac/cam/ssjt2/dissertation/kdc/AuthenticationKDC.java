@@ -34,10 +34,6 @@ public class AuthenticationKDC implements Runnable {
         return m_KeyStore.get(nodeId);
     }
 
-    public void sign(int nodeId, byte[] bytes) {
-
-    }
-
     @Override
     public void run() {
         try(ServerSocket socket = new ServerSocket(m_Port)) {

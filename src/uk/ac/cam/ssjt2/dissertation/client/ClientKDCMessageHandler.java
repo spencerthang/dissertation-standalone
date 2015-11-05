@@ -11,11 +11,11 @@ import java.io.OutputStream;
 /**
  * Created by Spencer on 3/11/2015.
  */
-public class ClientMessageHandler extends MessageHandlerBase {
+public class ClientKDCMessageHandler extends MessageHandlerBase {
 
     private final AuthenticationClient m_Client;
 
-    public ClientMessageHandler(InputStream inputStream, OutputStream outputStream, AuthenticationClient client) {
+    public ClientKDCMessageHandler(InputStream inputStream, OutputStream outputStream, AuthenticationClient client) {
         super(inputStream, outputStream);
         m_Client = client;
     }

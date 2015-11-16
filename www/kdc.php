@@ -25,11 +25,11 @@ if(isset($_POST['encrypted'])) {
 }
 
 // Check for the presence of a header
-if(!isset($data['header'])) {
+if(!isset($data['Header'])) {
     die('Request payload did not provide a header');
 }
 
-switch($data['header']) {
+switch($data['Header']) {
     case AuthenticationProtocol::HEADER_KDC_REQUEST:
         die("Received KDC request.");
         break;

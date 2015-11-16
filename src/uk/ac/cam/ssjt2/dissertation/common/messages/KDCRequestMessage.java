@@ -3,6 +3,8 @@ package uk.ac.cam.ssjt2.dissertation.common.messages;
 import uk.ac.cam.ssjt2.dissertation.common.AuthenticationProtocol;
 import uk.ac.cam.ssjt2.dissertation.common.MessageBase;
 
+import javax.crypto.spec.IvParameterSpec;
+import javax.xml.bind.DatatypeConverter;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,20 +17,14 @@ public class KDCRequestMessage extends MessageBase {
     private final int ClientId;
     private final int TargetId;
     private final int ClientNonce;
+    private final String ClientIV;
 
-    public KDCRequestMessage(int clientId, int targetId, int clientNonce) throws IOException {
+    public KDCRequestMessage(int clientId, int targetId, int clientNonce, IvParameterSpec clientIv) throws IOException {
         super(AuthenticationProtocol.HEADER_KDC_REQUEST);
         ClientId = clientId;
         TargetId = targetId;
         ClientNonce = clientNonce;
-    }
-
-    public static KDCRequestMessage readFromStream(InputStream inputStream) throws IOException {
-        DataInputStream dis = new DataInputStream(inputStream);
-        int clientId = dis.readInt();
-        int targetId = dis.readInt();
-        int clientNonce = dis.readInt();
-        return new KDCRequestMessage(clientId, targetId, clientNonce);
+        ClientIV = DatatypeConverter.printBase64Binary(clientIv.getIV());
     }
 
     public int getClientId() {

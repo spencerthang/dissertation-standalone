@@ -39,6 +39,7 @@ switch($data['Header']) {
         $clientId = $data['ClientId'];
         $targetId = $data["TargetId"];
         $clientNonce = $data["ClientNonce"];
+        $clientIV = base64_decode($data["ClientIV"]);
 
         // Obtain keys
         if(!isset($keys[$clientId])) result(null, 'Client not found.');
@@ -48,27 +49,27 @@ switch($data['Header']) {
 
             // Generate session key
         $sessionKey = openssl_random_pseudo_bytes(16);
-        $sessionIv = openssl_random_pseudo_bytes(12);
-        $targetIv = openssl_random_pseudo_bytes(12);
+        $sessionIV = openssl_random_pseudo_bytes(12);
+        $targetIV = openssl_random_pseudo_bytes(12);
 
         // Generate encrypted token for the target to verify client
         $targetMessage = array(
             "SessionKey" => $sessionKey,
-            "SessionIv" => bin2hex($sessionIv),
+            "SessionIv" => base64_encode($sessionIV),
             "ClientId" => $clientId,
         );
-        $targetMessage = openssl_encrypt(json_encode($targetMessage), PICO_CIPHER, $targetKey, 0, $targetIv);
+        $targetMessage = openssl_encrypt(json_encode($targetMessage), PICO_CIPHER, $targetKey, 0, $clientIV);
 
         // Generate encrypted response for client
         $clientResponse = array(
-            "SessionKey" => bin2hex($sessionKey),
-            "SessionIv" => bin2hex($sessionIv),
+            "SessionKey" => base64_encode($sessionKey),
+            "SessionIv" => base64_encode($sessionIV),
             "TargetId" => $data["TargetId"],
-            "TargetIv" => bin2hex($targetIv),
+            "TargetIv" => base64_encode($sessionIV),
             "ClientNonce" => $clientNonce,
             "TargetMessage" => base64_encode($targetMessage),
         );
-        $clientResponse = openssl_encrypt(json_encode($clientResponse), PICO_CIPHER, $targetKey, 0, $targetIv);
+        $clientResponse = openssl_encrypt(json_encode($clientResponse), PICO_CIPHER, $targetKey, 0, $targetIV);
         result($clientResponse);
 
         break;

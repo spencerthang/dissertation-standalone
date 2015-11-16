@@ -1,30 +1,20 @@
 package uk.ac.cam.ssjt2.dissertation.common;
 
-import java.io.*;
+import com.google.gson.Gson;
 
 /**
  * Created by Spencer on 2/11/2015.
  */
-public abstract class MessageBase implements AutoCloseable {
+public abstract class MessageBase {
 
-    private final byte m_Header;
-    private final ByteArrayOutputStream m_ByteBuffer = new ByteArrayOutputStream();
-    protected final DataOutputStream m_Buffer = new DataOutputStream(m_ByteBuffer);
+    private final byte Header;
 
     public MessageBase(byte header) {
-        m_Header = header;
-        m_ByteBuffer.write(header);
+        Header = header;
     }
 
-    public byte[] getBytes() throws IOException {
-        m_Buffer.flush();
-        return m_ByteBuffer.toByteArray();
-    }
-
-    @Override
-    public void close() throws Exception {
-        if(m_Buffer != null) {
-            m_Buffer.close();
-        }
+    public String getJson() {
+        Gson gson  = new Gson();
+        return gson.toJson(this);
     }
 }

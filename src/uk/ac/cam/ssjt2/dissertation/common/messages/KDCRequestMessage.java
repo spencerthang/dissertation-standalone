@@ -12,18 +12,15 @@ import java.io.InputStream;
  */
 public class KDCRequestMessage extends MessageBase {
 
-    private final int m_ClientId;
-    private final int m_TargetId;
-    private final int m_ClientNonce;
+    private final int ClientId;
+    private final int TargetId;
+    private final int ClientNonce;
 
     public KDCRequestMessage(int clientId, int targetId, int clientNonce) throws IOException {
         super(AuthenticationProtocol.HEADER_KDC_REQUEST);
-        m_ClientId = clientId;
-        m_TargetId = targetId;
-        m_ClientNonce = clientNonce;
-        m_Buffer.writeInt(m_ClientId);
-        m_Buffer.writeInt(m_TargetId);
-        m_Buffer.writeInt(m_ClientNonce);
+        ClientId = clientId;
+        TargetId = targetId;
+        ClientNonce = clientNonce;
     }
 
     public static KDCRequestMessage readFromStream(InputStream inputStream) throws IOException {
@@ -35,15 +32,15 @@ public class KDCRequestMessage extends MessageBase {
     }
 
     public int getClientId() {
-        return m_ClientId;
+        return ClientId;
     }
 
     public int getTargetId() {
-        return m_TargetId;
+        return TargetId;
     }
 
     public int getClientNonce() {
-        return m_ClientNonce;
+        return ClientNonce;
     }
 
 }

@@ -51,8 +51,8 @@ public class KDCResponseMessage extends MessageBase {
             clientEncryptedMessage = clientCipher.encrypt(unencryptedMessage.toByteArray());
         }
 
-        m_Buffer.writeInt(clientEncryptedMessage.length);
-        m_Buffer.write(clientEncryptedMessage);
+        //m_Buffer.writeInt(clientEncryptedMessage.length);
+        //m_Buffer.write(clientEncryptedMessage);
     }
 
     // This function decrypts and extract information from a KDC Response message.

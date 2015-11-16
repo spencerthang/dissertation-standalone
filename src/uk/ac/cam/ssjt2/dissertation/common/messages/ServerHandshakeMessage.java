@@ -24,8 +24,8 @@ public class ServerHandshakeMessage extends MessageBase {
     // Used by client to create a handshake message
     public ServerHandshakeMessage(byte[] encryptedMessageToServer) throws IOException {
         super(AuthenticationProtocol.HEADER_SERVER_HANDSHAKE);
-        m_Buffer.writeInt(encryptedMessageToServer.length);
-        m_Buffer.write(encryptedMessageToServer);
+        //m_Buffer.writeInt(encryptedMessageToServer.length);
+        //m_Buffer.write(encryptedMessageToServer);
     }
 
     // Used by server to decode the handshake message

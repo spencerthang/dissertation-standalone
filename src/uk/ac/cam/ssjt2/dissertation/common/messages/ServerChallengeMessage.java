@@ -14,7 +14,7 @@ public class ServerChallengeMessage extends MessageBase {
 
     public ServerChallengeMessage(int nonce) throws IOException {
         super(AuthenticationProtocol.HEADER_SERVER_CHALLENGE);
-        m_Buffer.writeInt(nonce);
+        //m_Buffer.writeInt(nonce);
     }
 
     public static int readFromStream(InputStream inputStream) throws IOException {

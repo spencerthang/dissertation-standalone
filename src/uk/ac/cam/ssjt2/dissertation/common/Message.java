@@ -1,6 +1,7 @@
 package uk.ac.cam.ssjt2.dissertation.common;
 
 import com.google.gson.Gson;
+import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -36,11 +37,20 @@ public class Message {
 
         // Decrypt KDC Response
         // Decrypt into byte array
-        CipherTools clientCipher = null;
         try {
-            clientCipher = new CipherTools(key, iv);
+            CipherTools clientCipher = new CipherTools(key, iv);
             String decryptedJson = new String(clientCipher.decrypt(encryptedResponse.getData()));
-            return gson.fromJson(decryptedJson, Message.class);
+
+            // Decode to message to determine the packet header
+            Message header  = gson.fromJson(decryptedJson, Message.class);
+
+            switch(header.getHeader()) {
+                case AuthenticationProtocol.HEADER_KDC_RESPONSE:
+                    return gson.fromJson(decryptedJson, KDCResponseMessage.class);
+                default:
+                    return header;
+            }
+
         } catch (NoSuchPaddingException e) {
             e.printStackTrace();
         } catch (InvalidAlgorithmParameterException e) {
@@ -56,6 +66,10 @@ public class Message {
         }
 
         return null;
+    }
+
+    public byte getHeader() {
+        return Header;
     }
 
     public class EncryptedResponse {

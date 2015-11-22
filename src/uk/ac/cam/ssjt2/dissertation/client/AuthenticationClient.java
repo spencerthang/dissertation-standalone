@@ -2,6 +2,7 @@ package uk.ac.cam.ssjt2.dissertation.client;
 
 import com.google.gson.Gson;
 import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
+import uk.ac.cam.ssjt2.dissertation.common.Message;
 import uk.ac.cam.ssjt2.dissertation.common.messages.KDCRequestMessage;
 
 import javax.crypto.SecretKey;
@@ -24,7 +25,6 @@ public class AuthenticationClient {
 
     private int m_Nonce;
     private int m_TargetId;
-    private IvParameterSpec m_ClientKdcIV;
 
     public AuthenticationClient(int clientId, SecretKey clientKey) {
         m_ClientId = clientId;
@@ -41,36 +41,8 @@ public class AuthenticationClient {
 
         // Send KDC Request Message
         String kdcResponse = kdcClient.post(kdcRequestMessage.getJson());
-
-        // Extract IV and Encrypted Message
-        Gson gson = new Gson();
-        KDCResponse response = gson.fromJson(kdcResponse, KDCResponse.class);
-        byte[] iv = response.getIV();
-        m_ClientKdcIV = new IvParameterSpec(response.getIV());
-
-        // Decrypt KDC Response
-        // Decrypt into byte array
-        CipherTools clientCipher = null;
-        try {
-            clientCipher = new CipherTools(m_ClientKey, m_ClientKdcIV);
-            byte[] data = response.getData();
-            String decrypted = new String(clientCipher.decrypt(data));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public class KDCResponse {
-        String Data;
-        String IV;
-
-        public byte[] getData() {
-            return DatatypeConverter.parseBase64Binary(Data);
-        }
-
-        public byte[] getIV() {
-            return DatatypeConverter.parseBase64Binary(IV);
-        }
+        System.out.println(kdcResponse);
+        System.out.println(Message.fromEncryptedResponse(m_ClientKey, kdcResponse).getJson());
     }
 
     public boolean connectToServer(String targetAddress, int serverPort) throws IOException {

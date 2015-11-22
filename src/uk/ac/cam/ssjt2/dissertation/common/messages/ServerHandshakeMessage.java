@@ -2,7 +2,7 @@ package uk.ac.cam.ssjt2.dissertation.common.messages;
 
 import uk.ac.cam.ssjt2.dissertation.common.AuthenticationProtocol;
 import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
-import uk.ac.cam.ssjt2.dissertation.common.MessageBase;
+import uk.ac.cam.ssjt2.dissertation.common.Message;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -20,7 +20,7 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Created by Spencer on 5/11/2015.
  */
-public class ServerHandshakeMessage extends MessageBase {
+public class ServerHandshakeMessage extends Message {
 
     // Used by client to create a handshake message
     public ServerHandshakeMessage(byte[] encryptedMessageToServer) throws IOException {

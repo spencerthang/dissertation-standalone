@@ -2,7 +2,7 @@ package uk.ac.cam.ssjt2.dissertation.common.messages;
 
 import uk.ac.cam.ssjt2.dissertation.common.AuthenticationProtocol;
 import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
-import uk.ac.cam.ssjt2.dissertation.common.MessageBase;
+import uk.ac.cam.ssjt2.dissertation.common.Message;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -17,7 +17,7 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Created by Spencer on 4/11/2015.
  */
-public class KDCResponseMessage extends MessageBase {
+public class KDCResponseMessage extends Message {
 
     private int m_ClientNonce;
     private int m_TargetId;

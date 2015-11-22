@@ -5,11 +5,11 @@ import com.google.gson.Gson;
 /**
  * Created by Spencer on 2/11/2015.
  */
-public abstract class MessageBase {
+public class Message {
 
     private final byte Header;
 
-    public MessageBase(byte header) {
+    public Message(byte header) {
         Header = header;
     }
 

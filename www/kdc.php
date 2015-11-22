@@ -17,7 +17,7 @@ class AuthenticationProtocol
 if(!isset($_POST['Data']))
     result_error('No input provided.');
 
-$data = json_decode($_POST['Data']);
+$data = json_decode($_POST['Data'], true);
 
 // Check for the presence of a header
 if(!isset($data['Header'])) {

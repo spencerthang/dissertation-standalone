@@ -3,6 +3,9 @@ package uk.ac.cam.ssjt2.dissertation.client;
 import com.google.gson.Gson;
 import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
 import uk.ac.cam.ssjt2.dissertation.common.Message;
+import uk.ac.cam.ssjt2.dissertation.common.exceptions.InvalidNonceException;
+import uk.ac.cam.ssjt2.dissertation.common.exceptions.InvalidTargetException;
+import uk.ac.cam.ssjt2.dissertation.common.exceptions.KDCException;
 import uk.ac.cam.ssjt2.dissertation.common.messages.KDCRequestMessage;
 import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
 
@@ -19,32 +22,38 @@ import java.util.Random;
 public class AuthenticationClient {
 
     private final int m_ClientId;
+    private final int m_TargetId;
     private final SecretKey m_ClientKey;
 
     private SecretKey m_SessionKey = null;
-    private byte[] m_EncryptedMessageToServer;
+    private String m_KDCMessageToServer;
 
-    private int m_Nonce;
-    private int m_TargetId;
-
-    public AuthenticationClient(int clientId, SecretKey clientKey) {
+    public AuthenticationClient(int clientId, int targetId, SecretKey clientKey) {
         m_ClientId = clientId;
+        m_TargetId = targetId;
         m_ClientKey = clientKey;
     }
 
-    public void startSessionKeyRetrieval(String kdcUrl, int targetId) throws IOException, NoSuchAlgorithmException {
+    public void retrieveSessionKey(String kdcUrl) throws IOException, NoSuchAlgorithmException, KDCException {
         // Craft new KDC Request Message
         HttpClient kdcClient = new HttpClient(kdcUrl);
         Random rand = new Random();
-        m_Nonce = rand.nextInt();
-        m_TargetId = targetId;
-        KDCRequestMessage kdcRequestMessage = new KDCRequestMessage(m_ClientId, m_TargetId, m_Nonce);
+        int clientNonce = rand.nextInt();
+        KDCRequestMessage kdcRequestMessage = new KDCRequestMessage(m_ClientId, m_TargetId, clientNonce);
 
         // Request KDC Response
         String encryptedKDCResponse = kdcClient.post(kdcRequestMessage.getJson());
         KDCResponseMessage kdcResponse = ((KDCResponseMessage)Message.fromEncryptedResponse(m_ClientKey, encryptedKDCResponse));
 
+        // Validate KDC Response
+        if(kdcResponse.getClientNonce() != clientNonce) {
+            throw new InvalidNonceException("Expected: " + clientNonce + " Actual: " + kdcResponse.getClientNonce());
+        } else if(kdcResponse.getTargetId() != m_TargetId) {
+            throw new InvalidTargetException("Expected: " + m_TargetId + " Actual: " + kdcResponse.getTargetId());
+        }
 
+        m_SessionKey = kdcResponse.getSessionKey();
+        m_KDCMessageToServer = kdcResponse.getTargetMessage();
     }
 
     public boolean connectToServer(String targetAddress, int serverPort) throws IOException {
@@ -55,35 +64,11 @@ public class AuthenticationClient {
         return m_ClientKey;
     }
 
-    protected int getNonce() {
-        return m_Nonce;
-    }
-
-    protected int getTargetId() {
-        return m_TargetId;
-    }
-
     protected int getClientId() {
         return m_ClientId;
     }
 
-    public boolean hasSessionKey() {
-        return m_SessionKey != null;
-    }
-
-    protected void setSessionKey(SecretKey sessionKey) {
-        m_SessionKey = sessionKey;
-    }
-
     protected SecretKey getSessionKey() {
         return m_SessionKey;
-    }
-
-    public byte[] getEncryptedMessageToServer() {
-        return m_EncryptedMessageToServer;
-    }
-
-    public void setEncryptedMessageToServer(byte[] encryptedMessageToServer) {
-        m_EncryptedMessageToServer = encryptedMessageToServer;
     }
 }

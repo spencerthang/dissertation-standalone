@@ -3,6 +3,7 @@ package uk.ac.cam.ssjt2.dissertation.tests;
 import org.junit.Test;
 import uk.ac.cam.ssjt2.dissertation.client.AuthenticationClient;
 import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
+import uk.ac.cam.ssjt2.dissertation.common.exceptions.KDCException;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -25,14 +26,14 @@ public class AuthenticationClientTests {
 
     @Test
     public void canCreateNewClient() {
-        AuthenticationClient client = new AuthenticationClient(c_ClientId, m_ClientKey);
+        AuthenticationClient client = new AuthenticationClient(c_ClientId, c_TargetId, m_ClientKey);
         assertNotNull(client);
     }
 
     @Test
-    public void canPerformSessionKeyRetrieval() throws IOException, NoSuchAlgorithmException {
-        AuthenticationClient client = new AuthenticationClient(c_ClientId, m_ClientKey);
-        client.startSessionKeyRetrieval(c_KdcUrl, c_TargetId);
+    public void canPerformSessionKeyRetrieval() throws IOException, NoSuchAlgorithmException, KDCException {
+        AuthenticationClient client = new AuthenticationClient(c_ClientId, c_TargetId, m_ClientKey);
+        client.retrieveSessionKey(c_KdcUrl);
         assertNotNull(client);
     }
 

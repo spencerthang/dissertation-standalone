@@ -23,15 +23,13 @@ public class KDCResponseMessage extends Message {
 
     private final int ClientNonce;
     private final int TargetId;
-    private final String TargetIV;
     private final String SessionKey;
     private final String TargetMessage;
 
-    public KDCResponseMessage(byte header, int clientNonce, int targetId, String targetIV, String sessionKey, String targetMessage) {
+    public KDCResponseMessage(byte header, int clientNonce, int targetId, String sessionKey, String targetMessage) {
         super(AuthenticationProtocol.HEADER_KDC_RESPONSE);
         ClientNonce = clientNonce;
         TargetId = targetId;
-        TargetIV = targetIV;
         SessionKey = sessionKey;
         TargetMessage = targetMessage;
     }
@@ -48,8 +46,7 @@ public class KDCResponseMessage extends Message {
         return new SecretKeySpec(DatatypeConverter.parseBase64Binary(SessionKey), CipherTools.CipherTransformation);
     }
 
-    public byte[] getTargetIv() {
-        return DatatypeConverter.parseBase64Binary(TargetIV);
+    public String getTargetMessage() {
+        return TargetMessage;
     }
-
 }

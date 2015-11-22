@@ -1,6 +1,6 @@
 <?php
 
-require_once("keys.php");
+require_once("key_config.php");
 
 class AuthenticationProtocol
 {
@@ -17,14 +17,7 @@ class AuthenticationProtocol
 if(!isset($_POST['data']))
     result_error('No input provided.');
 
-$data = $_POST['data'];
-
-// Perform decryption if necessary.
-if(isset($_POST['encrypted'])) {
-    $data = array();
-} else {
-    $data = json_decode($data, true);
-}
+$data = json_decode($_POST['data']);
 
 // Check for the presence of a header
 if(!isset($data['Header'])) {
@@ -33,8 +26,6 @@ if(!isset($data['Header'])) {
 
 switch($data['Header']) {
     case AuthenticationProtocol::HEADER_KDC_REQUEST:
-        $output = '';
-
         // Parse input from client
         $clientId = $data['ClientId'];
         $targetId = $data['TargetId'];

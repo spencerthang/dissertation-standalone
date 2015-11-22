@@ -56,7 +56,11 @@ switch($data['Header']) {
             "SessionKey" => $sessionKey,
             "ClientId" => $clientId,
         );
-        $targetMessage = openssl_encrypt(json_encode($targetMessage), PICO_CIPHER, $targetKey, OPENSSL_RAW_DATA, $targetIV);
+        $targetMessageEncrypted = openssl_encrypt(json_encode($targetMessage), PICO_CIPHER, $targetKey, OPENSSL_RAW_DATA, $targetIV);
+        $targetMessage = array(
+            "Data" => base64_encode($targetMessageEncrypted),
+            "IV" => $targetIV
+        );
 
         // Generate encrypted response for client
         $clientResponse = array(
@@ -65,7 +69,7 @@ switch($data['Header']) {
             "TargetId" => $data['TargetId'],
             "TargetIV" => base64_encode($targetIV),
             "ClientNonce" => $clientNonce,
-            "TargetMessage" => base64_encode($targetMessage),
+            "TargetMessage" => base64_encode(json_encode($targetMessage)),
         );
 
         $clientResponse = openssl_encrypt(json_encode($clientResponse), PICO_CIPHER, $clientKey, OPENSSL_RAW_DATA, $clientIV);

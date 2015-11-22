@@ -66,7 +66,7 @@ public abstract class MessageHandlerBase implements Runnable, AutoCloseable {
         // Decrypt into byte array
         CipherTools clientCipher = null;
         try {
-            clientCipher = new CipherTools(m_SessionKey);
+            clientCipher = new CipherTools(m_SessionKey, CipherTools.GenerateIV());
             return clientCipher.decrypt(encryptedMessage);
         } catch (Exception e) {
             logError("Failed to read session encrypted message.");
@@ -80,7 +80,7 @@ public abstract class MessageHandlerBase implements Runnable, AutoCloseable {
         // Encrypt into byte array
         CipherTools clientCipher = null;
         try {
-            clientCipher = new CipherTools(m_SessionKey);
+            clientCipher = new CipherTools(m_SessionKey, CipherTools.GenerateIV());
             byte[] encrypted = clientCipher.encrypt(message);
             dos.write(AuthenticationProtocol.HEADER_SESSION_ENCRYPTED);
             dos.writeInt(encrypted.length);

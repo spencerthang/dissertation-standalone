@@ -10,6 +10,7 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -22,10 +23,10 @@ public class KDCResponseMessage extends MessageBase {
     private int m_TargetId;
     private SecretKey m_SessionKey;
 
-    public KDCResponseMessage(int clientId, SecretKey clientKey, int targetId, SecretKey targetKey, int clientNonce, SecretKey sessionKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException, BadPaddingException, IllegalBlockSizeException {
+    public KDCResponseMessage(int clientId, SecretKey clientKey, int targetId, SecretKey targetKey, int clientNonce, SecretKey sessionKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
         super(AuthenticationProtocol.HEADER_KDC_RESPONSE);
-        CipherTools clientCipher = new CipherTools(clientKey);
-        CipherTools targetCipher = new CipherTools(targetKey);
+        CipherTools clientCipher = new CipherTools(clientKey, CipherTools.GenerateIV());
+        CipherTools targetCipher = new CipherTools(targetKey, CipherTools.GenerateIV());
         byte[] sessionKeyBytes = sessionKey.getEncoded();
 
         byte[] targetEncryptedMessage;
@@ -57,13 +58,13 @@ public class KDCResponseMessage extends MessageBase {
 
     // This function decrypts and extract information from a KDC Response message.
     // This function does NOT verify the nonce or target ID.
-    public static KDCResponse readFromStream(InputStream inputStream, SecretKey clientKey) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
+    public static KDCResponse readFromStream(InputStream inputStream, SecretKey clientKey) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
         DataInputStream dis = new DataInputStream(inputStream);
         int messageLength = dis.readInt();
         byte[] encryptedMessage = new byte[messageLength];
         dis.readFully(encryptedMessage);
 
-        CipherTools clientCipher = new CipherTools(clientKey);
+        CipherTools clientCipher = new CipherTools(clientKey, CipherTools.GenerateIV());
         byte[] decrypted = clientCipher.decrypt(encryptedMessage);
 
         try(DataInputStream decryptedDis = new DataInputStream(new ByteArrayInputStream(decrypted))) {

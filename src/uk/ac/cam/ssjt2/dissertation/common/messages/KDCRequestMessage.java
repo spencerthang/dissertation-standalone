@@ -17,14 +17,12 @@ public class KDCRequestMessage extends MessageBase {
     private final int ClientId;
     private final int TargetId;
     private final int ClientNonce;
-    private final String ClientIV;
 
-    public KDCRequestMessage(int clientId, int targetId, int clientNonce, IvParameterSpec clientIv) throws IOException {
+    public KDCRequestMessage(int clientId, int targetId, int clientNonce) throws IOException {
         super(AuthenticationProtocol.HEADER_KDC_REQUEST);
         ClientId = clientId;
         TargetId = targetId;
         ClientNonce = clientNonce;
-        ClientIV = DatatypeConverter.printBase64Binary(clientIv.getIV());
     }
 
     public int getClientId() {

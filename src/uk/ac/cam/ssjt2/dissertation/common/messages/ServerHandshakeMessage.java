@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -29,13 +30,13 @@ public class ServerHandshakeMessage extends MessageBase {
     }
 
     // Used by server to decode the handshake message
-    public static ServerHandshakeResult readHandshakeFromStream(InputStream inputStream, SecretKey serverKey) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException {
+    public static ServerHandshakeResult readHandshakeFromStream(InputStream inputStream, SecretKey serverKey) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
         DataInputStream dis = new DataInputStream(inputStream);
         int messageLength = dis.readInt();
         byte[] encryptedMessage = new byte[messageLength];
         dis.readFully(encryptedMessage);
 
-        CipherTools serverCipher = new CipherTools(serverKey);
+        CipherTools serverCipher = new CipherTools(serverKey, CipherTools.GenerateIV());
         byte[] decrypted = serverCipher.decrypt(encryptedMessage);
 
         try(DataInputStream decryptedDis = new DataInputStream(new ByteArrayInputStream(decrypted))) {

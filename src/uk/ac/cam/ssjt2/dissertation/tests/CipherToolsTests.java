@@ -8,6 +8,7 @@ import org.junit.Test;
 import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
 
 import javax.crypto.*;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -25,13 +26,13 @@ public class CipherToolsTests {
     }
 
     @Test
-    public void canCreateAESCipher() throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
-        CipherTools cipher = new CipherTools(m_CipherKey);
+    public void canCreateAESCipher() throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException {
+        CipherTools cipher = new CipherTools(m_CipherKey, CipherTools.GenerateIV());
     }
 
     @Test
-    public void canPerformRoundTripEncryption() throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-        CipherTools cipher = new CipherTools(m_CipherKey);
+    public void canPerformRoundTripEncryption() throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+        CipherTools cipher = new CipherTools(m_CipherKey, CipherTools.GenerateIV());
         byte[] testBytes = new byte[] { 0x0A, 0x01, 0x09, 0x0C, 0x0D, 0x1F, 0x77, 0x65 };
         byte[] encryptedBytes = cipher.encrypt(testBytes);
         assertThat(encryptedBytes, IsNot.not(IsEqual.equalTo(testBytes)));

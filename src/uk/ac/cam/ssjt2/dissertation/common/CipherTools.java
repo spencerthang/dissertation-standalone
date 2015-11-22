@@ -2,6 +2,7 @@ package uk.ac.cam.ssjt2.dissertation.common;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -11,15 +12,15 @@ import java.security.SecureRandom;
  */
 public class CipherTools {
 
-    public static final String CipherTransformation = "AES";
+    public static final String CipherTransformation = "AES/CBC/PKCS5Padding";
     private final Cipher m_EncryptCipher;
     private final Cipher m_DecryptCipher;
 
-    public CipherTools(SecretKey key) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public CipherTools(SecretKey key, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException {
         m_EncryptCipher = Cipher.getInstance(CipherTransformation);
         m_DecryptCipher = Cipher.getInstance(CipherTransformation);
-        m_EncryptCipher.init(Cipher.ENCRYPT_MODE, key);
-        m_DecryptCipher.init(Cipher.DECRYPT_MODE, key);
+        m_EncryptCipher.init(Cipher.ENCRYPT_MODE, key, iv);
+        m_DecryptCipher.init(Cipher.DECRYPT_MODE, key, iv);
     }
 
     public byte[] encrypt(byte[] unencrypted) throws BadPaddingException, IllegalBlockSizeException {

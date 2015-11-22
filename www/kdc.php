@@ -69,7 +69,7 @@ switch($data['Header']) {
             "TargetId" => $data['TargetId'],
             "TargetIV" => base64_encode($targetIV),
             "ClientNonce" => $clientNonce,
-            "TargetMessage" => base64_encode(json_encode($targetMessage)),
+            "TargetMessage" => json_encode($targetMessage),
         );
 
         $clientResponse = openssl_encrypt(json_encode($clientResponse), PICO_CIPHER, $clientKey, OPENSSL_RAW_DATA, $clientIV);

@@ -22,31 +22,12 @@ import java.security.NoSuchAlgorithmException;
  */
 public class ServerHandshakeMessage extends Message {
 
+    private final String Handshake;
+
     // Used by client to create a handshake message
-    public ServerHandshakeMessage(byte[] encryptedMessageToServer) throws IOException {
+    public ServerHandshakeMessage(String handshake) throws IOException {
         super(AuthenticationProtocol.HEADER_SERVER_HANDSHAKE);
-        //m_Buffer.writeInt(encryptedMessageToServer.length);
-        //m_Buffer.write(encryptedMessageToServer);
-    }
-
-    // Used by server to decode the handshake message
-    public static ServerHandshakeResult readHandshakeFromStream(InputStream inputStream, SecretKey serverKey) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
-        DataInputStream dis = new DataInputStream(inputStream);
-        int messageLength = dis.readInt();
-        byte[] encryptedMessage = new byte[messageLength];
-        dis.readFully(encryptedMessage);
-
-        CipherTools serverCipher = new CipherTools(serverKey, CipherTools.GenerateIV());
-        byte[] decrypted = serverCipher.decrypt(encryptedMessage);
-
-        try(DataInputStream decryptedDis = new DataInputStream(new ByteArrayInputStream(decrypted))) {
-            int sessionKeyLength = decryptedDis.readInt();
-            byte[] sessionKeyBytes = new byte[sessionKeyLength];
-            decryptedDis.readFully(sessionKeyBytes);
-            SecretKey sessionKey = new SecretKeySpec(sessionKeyBytes, 0, sessionKeyBytes.length, CipherTools.CipherTransformation);
-            int clientId = decryptedDis.readInt();
-            return new ServerHandshakeResult(clientId, sessionKey);
-        }
+        Handshake = handshake;
     }
 
     public static class ServerHandshakeResult {

@@ -37,7 +37,7 @@ switch($data['Header']) {
 
         // Parse input from client
         $clientId = $data['ClientId'];
-        $targetId = $data["TargetId"];
+        $targetId = $data['TargetId'];
         $clientNonce = $data["ClientNonce"];
 
         // Obtain keys
@@ -48,24 +48,22 @@ switch($data['Header']) {
 
         // Generate session key and IVs
         $sessionKey = openssl_random_pseudo_bytes(KEY_SIZE);
-        $sessionIV = openssl_random_pseudo_bytes(IV_SIZE);
         $targetIV = openssl_random_pseudo_bytes(IV_SIZE);
         $clientIV = openssl_random_pseudo_bytes(IV_SIZE);
 
         // Generate encrypted token for the target to verify client
         $targetMessage = array(
             "SessionKey" => $sessionKey,
-            "SessionIV" => base64_encode($sessionIV),
             "ClientId" => $clientId,
         );
         $targetMessage = openssl_encrypt(json_encode($targetMessage), PICO_CIPHER, $targetKey, OPENSSL_RAW_DATA, $targetIV);
 
         // Generate encrypted response for client
         $clientResponse = array(
+            "Header" => AuthenticationProtocol::HEADER_KDC_RESPONSE,
             "SessionKey" => base64_encode($sessionKey),
-            "SessionIV" => base64_encode($sessionIV),
-            "TargetId" => $data["TargetId"],
-            "TargetIV" => base64_encode($sessionIV),
+            "TargetId" => $data['TargetId'],
+            "TargetIV" => base64_encode($targetIV),
             "ClientNonce" => $clientNonce,
             "TargetMessage" => base64_encode($targetMessage),
         );

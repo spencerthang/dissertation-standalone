@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
 import uk.ac.cam.ssjt2.dissertation.common.Message;
 import uk.ac.cam.ssjt2.dissertation.common.messages.KDCRequestMessage;
+import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
@@ -39,10 +40,11 @@ public class AuthenticationClient {
         m_TargetId = targetId;
         KDCRequestMessage kdcRequestMessage = new KDCRequestMessage(m_ClientId, m_TargetId, m_Nonce);
 
-        // Send KDC Request Message
-        String kdcResponse = kdcClient.post(kdcRequestMessage.getJson());
-        System.out.println(kdcResponse);
-        System.out.println(Message.fromEncryptedResponse(m_ClientKey, kdcResponse).getJson());
+        // Request KDC Response
+        String encryptedKDCResponse = kdcClient.post(kdcRequestMessage.getJson());
+        KDCResponseMessage kdcResponse = ((KDCResponseMessage)Message.fromEncryptedResponse(m_ClientKey, encryptedKDCResponse));
+
+
     }
 
     public boolean connectToServer(String targetAddress, int serverPort) throws IOException {

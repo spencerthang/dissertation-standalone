@@ -14,10 +14,10 @@ class AuthenticationProtocol
 }
 
 // The KDC will accept well-formed HTTP POST requests only.
-if(!isset($_POST['data']))
+if(!isset($_POST['Data']))
     result_error('No input provided.');
 
-$data = json_decode($_POST['data']);
+$data = json_decode($_POST['Data']);
 
 // Check for the presence of a header
 if(!isset($data['Header'])) {

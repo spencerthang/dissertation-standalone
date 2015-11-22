@@ -8,7 +8,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
-import javax.xml.bind.DatatypeConverter;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -32,7 +31,7 @@ public class Message {
     public static Message fromEncryptedResponse(SecretKey key, String response) {
         // Extract IV and Encrypted Message
         Gson gson = new Gson();
-        EncryptedResponse encryptedResponse = gson.fromJson(response, EncryptedResponse.class);
+        EncryptedMessage encryptedResponse = gson.fromJson(response, EncryptedMessage.class);
         IvParameterSpec iv = new IvParameterSpec(encryptedResponse.getIV());
 
         // Decrypt KDC Response
@@ -70,18 +69,5 @@ public class Message {
 
     public byte getHeader() {
         return Header;
-    }
-
-    public class EncryptedResponse {
-        String Data;
-        String IV;
-
-        public byte[] getData() {
-            return DatatypeConverter.parseBase64Binary(Data);
-        }
-
-        public byte[] getIV() {
-            return DatatypeConverter.parseBase64Binary(IV);
-        }
     }
 }

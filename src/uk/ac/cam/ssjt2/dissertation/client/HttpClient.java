@@ -16,8 +16,15 @@ public class HttpClient {
         m_Url = new URL(url);
     }
 
+    // Post unencrypted data (no IV)
     public String post(String data) throws IOException {
-        String urlParameters = "data=" + data;
+        return post(data, null);
+    }
+
+    // Post encrypted data (with IV) or unencrypted data (IV = null)
+    public String post(String data, String iv) throws IOException {
+        String urlParameters = "Data=" + data;
+        if(iv != null) urlParameters += "&IV=" + iv;
         byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
         int postDataLength = postData.length;
 

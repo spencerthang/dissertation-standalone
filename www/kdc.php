@@ -15,7 +15,7 @@ class AuthenticationProtocol
 
 // The KDC will accept well-formed HTTP POST requests only.
 if(!isset($_POST['data']))
-    result(null, 'No input provided.');
+    result_error('No input provided.');
 
 $data = $_POST['data'];
 
@@ -28,7 +28,7 @@ if(isset($_POST['encrypted'])) {
 
 // Check for the presence of a header
 if(!isset($data['Header'])) {
-    result(null, 'Request payload did not provide a header.');
+    result_error('Request payload did not provide a header.');
 }
 
 switch($data['Header']) {
@@ -39,51 +39,53 @@ switch($data['Header']) {
         $clientId = $data['ClientId'];
         $targetId = $data["TargetId"];
         $clientNonce = $data["ClientNonce"];
-        $clientIV = base64_decode($data["ClientIV"]);
 
         // Obtain keys
-        if(!isset($keys[$clientId])) result(null, 'Client not found.');
-        if(!isset($keys[$targetId])) result(null, 'Target not found.');
+        if(!isset($keys[$clientId])) result_error('Client not found.');
+        if(!isset($keys[$targetId])) result_error('Target not found.');
         $clientKey = $keys[$clientId];
         $targetKey = $keys[$targetId];
 
-            // Generate session key
-        $sessionKey = openssl_random_pseudo_bytes(16);
-        $sessionIV = openssl_random_pseudo_bytes(12);
-        $targetIV = openssl_random_pseudo_bytes(12);
+        // Generate session key and IVs
+        $sessionKey = openssl_random_pseudo_bytes(KEY_SIZE);
+        $sessionIV = openssl_random_pseudo_bytes(IV_SIZE);
+        $targetIV = openssl_random_pseudo_bytes(IV_SIZE);
+        $clientIV = openssl_random_pseudo_bytes(IV_SIZE);
 
         // Generate encrypted token for the target to verify client
         $targetMessage = array(
             "SessionKey" => $sessionKey,
-            "SessionIv" => base64_encode($sessionIV),
+            "SessionIV" => base64_encode($sessionIV),
             "ClientId" => $clientId,
         );
-        $targetMessage = openssl_encrypt(json_encode($targetMessage), PICO_CIPHER, $targetKey, 0, $clientIV);
+        $targetMessage = openssl_encrypt(json_encode($targetMessage), PICO_CIPHER, $targetKey, OPENSSL_RAW_DATA, $targetIV);
 
         // Generate encrypted response for client
         $clientResponse = array(
             "SessionKey" => base64_encode($sessionKey),
-            "SessionIv" => base64_encode($sessionIV),
+            "SessionIV" => base64_encode($sessionIV),
             "TargetId" => $data["TargetId"],
-            "TargetIv" => base64_encode($sessionIV),
+            "TargetIV" => base64_encode($sessionIV),
             "ClientNonce" => $clientNonce,
             "TargetMessage" => base64_encode($targetMessage),
         );
-        $clientResponse = openssl_encrypt(json_encode($clientResponse), PICO_CIPHER, $targetKey, 0, $targetIV);
-        result($clientResponse);
+
+        $clientResponse = openssl_encrypt(json_encode($clientResponse), PICO_CIPHER, $clientKey, OPENSSL_RAW_DATA, $clientIV);
+        result($clientResponse, $clientIV);
 
         break;
     default:
-        die('Request payload had unknown header: ' + $data['header']);
+        die('Request payload had unknown header: ' + $data['Header']);
 }
 
-function result($data, $error = null) {
-    $result = array();
-    if($error !== null) {
-        $result['error'] = $error;
-    } else {
-        $result['data'] = $data;
-    }
+function result_error($error) {
+    $result = array('Error' => $error);
+    die(json_encode($result));
+}
+
+function result($data, $iv = null) {
+    $result = array('Data' => base64_encode($data), 'Length' => mb_strlen($data, '8bit'));
+    if($iv !== null) $result['IV'] = base64_encode($iv);
     die(json_encode($result));
 }
 

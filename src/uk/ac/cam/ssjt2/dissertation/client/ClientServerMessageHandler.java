@@ -34,7 +34,7 @@ public class ClientServerMessageHandler extends MessageHandlerBase {
                 log("Received server handshake challenge.");
                 int nonce = ServerChallengeMessage.readFromStream(inputStream);
                 log("Decoded challenge nonce: " + nonce);
-                writeEncrypted(m_OutputStream, new ServerChallengeResponseMessage(nonce - 1).getBytes());
+                //writeEncrypted(m_OutputStream, new ServerChallengeResponseMessage(nonce - 1).getBytes());
                 break;
             default:
                 logError("Unrecognized message header: " + header);

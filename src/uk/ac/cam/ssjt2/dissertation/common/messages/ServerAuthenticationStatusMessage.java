@@ -20,4 +20,5 @@ public class ServerAuthenticationStatusMessage extends Message {
     public boolean isAuthenticated() {
         return Authenticated;
     }
+
 }

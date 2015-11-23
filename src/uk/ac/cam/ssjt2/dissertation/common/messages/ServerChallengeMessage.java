@@ -14,11 +14,13 @@ public class ServerChallengeMessage extends Message {
 
     private final int ServerNonce;
     private final int ClientId;
+    private final String SessionId;
 
-    public ServerChallengeMessage(int serverNonce, int clientId) throws IOException {
+    public ServerChallengeMessage(int serverNonce, int clientId, String sessionId) throws IOException {
         super(AuthenticationProtocol.HEADER_SERVER_CHALLENGE);
         ServerNonce = serverNonce;
         ClientId = clientId;
+        SessionId = sessionId;
     }
 
     public int getServerNonce() {
@@ -27,6 +29,10 @@ public class ServerChallengeMessage extends Message {
 
     public int getClientId() {
         return ClientId;
+    }
+
+    public String getSessionId() {
+        return SessionId;
     }
 
 }

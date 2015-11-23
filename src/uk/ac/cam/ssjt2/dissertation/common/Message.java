@@ -2,6 +2,8 @@ package uk.ac.cam.ssjt2.dissertation.common;
 
 import com.google.gson.Gson;
 import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
+import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeMessage;
+import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeResponseMessage;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -46,6 +48,9 @@ public class Message {
             switch(header.getHeader()) {
                 case AuthenticationProtocol.HEADER_KDC_RESPONSE:
                     return gson.fromJson(decryptedJson, KDCResponseMessage.class);
+                case AuthenticationProtocol.HEADER_SERVER_CHALLENGE:
+                    return gson.fromJson(decryptedJson, ServerChallengeMessage.class);
+
                 default:
                     return header;
             }

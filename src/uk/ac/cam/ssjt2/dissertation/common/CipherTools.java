@@ -14,6 +14,7 @@ public class CipherTools {
 
     public static final String CipherTransformation = "AES/CBC/PKCS5Padding";
     public static final String CipherAlgorithm = "AES";
+    public static final int CipherIVSize = 16;
     private final Cipher m_EncryptCipher;
     private final Cipher m_DecryptCipher;
 
@@ -40,7 +41,7 @@ public class CipherTools {
 
     public static IvParameterSpec GenerateIV() throws NoSuchAlgorithmException {
         SecureRandom randomSecureRandom = SecureRandom.getInstance("SHA1PRNG");
-        byte[] iv = new byte[12];
+        byte[] iv = new byte[CipherIVSize];
         randomSecureRandom.nextBytes(iv);
         return new IvParameterSpec(iv);
     }

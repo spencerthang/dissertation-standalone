@@ -4,10 +4,6 @@ require_once("key_config.php");
 
 class AuthenticationProtocol
 {
-    const HEADER_TEST = 10;
-    const HEADER_SESSION_ENCRYPTED = 0;
-    const HEADER_KDC_REQUEST = 1;
-    const HEADER_KDC_RESPONSE = 2;
     const HEADER_SERVER_HANDSHAKE = 3;
     const HEADER_SERVER_CHALLENGE = 4;
     const HEADER_SERVER_CHALLENGE_RESPONSE = 5;

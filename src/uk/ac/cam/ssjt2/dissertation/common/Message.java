@@ -1,6 +1,7 @@
 package uk.ac.cam.ssjt2.dissertation.common;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.SymmetricProtocolException;
 import uk.ac.cam.ssjt2.dissertation.common.messages.*;
 
@@ -33,7 +34,12 @@ public class Message {
     public static Message fromEncryptedResponse(SecretKey key, String response) throws SymmetricProtocolException {
         // Extract IV and Encrypted Message
         Gson gson = new Gson();
-        EncryptedMessage encryptedResponse = gson.fromJson(response, EncryptedMessage.class);
+        EncryptedMessage encryptedResponse;
+        try {
+            encryptedResponse = gson.fromJson(response, EncryptedMessage.class);
+        } catch (JsonSyntaxException e) {
+            throw new SymmetricProtocolException("Response is not valid JSON: " + response);
+        }
 
         // Check if an error occured
         if(encryptedResponse.getError() != null) {

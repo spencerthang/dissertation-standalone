@@ -3,7 +3,7 @@ package uk.ac.cam.ssjt2.dissertation.tests;
 import org.junit.Test;
 import uk.ac.cam.ssjt2.dissertation.client.AuthenticationClient;
 import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
-import uk.ac.cam.ssjt2.dissertation.common.exceptions.KDCException;
+import uk.ac.cam.ssjt2.dissertation.common.exceptions.SymmetricProtocolException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -38,14 +38,14 @@ public class AuthenticationClientTests {
     }
 
     @Test
-    public void canPerformSessionKeyRetrieval() throws IOException, NoSuchAlgorithmException, KDCException {
+    public void canPerformSessionKeyRetrieval() throws IOException, NoSuchAlgorithmException, SymmetricProtocolException {
         AuthenticationClient client = new AuthenticationClient(c_ClientId, c_TargetId, m_ClientKey);
         client.retrieveSessionKey(c_KdcUrl);
         assertNotNull(client);
     }
 
     @Test
-    public void canConnectToServer() throws IOException, NoSuchAlgorithmException, KDCException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException {
+    public void canConnectToServer() throws IOException, NoSuchAlgorithmException, SymmetricProtocolException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException {
         AuthenticationClient client = new AuthenticationClient(c_ClientId, c_TargetId, m_ClientKey);
         client.retrieveSessionKey(c_KdcUrl);
         assertTrue(client.connectToServer(c_ServerUrl));

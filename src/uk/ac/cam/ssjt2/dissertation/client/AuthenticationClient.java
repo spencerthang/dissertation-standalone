@@ -1,19 +1,15 @@
 package uk.ac.cam.ssjt2.dissertation.client;
 
-import com.google.gson.Gson;
-import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
 import uk.ac.cam.ssjt2.dissertation.common.Message;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.InvalidNonceException;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.InvalidTargetException;
-import uk.ac.cam.ssjt2.dissertation.common.exceptions.KDCException;
+import uk.ac.cam.ssjt2.dissertation.common.exceptions.SymmetricProtocolException;
 import uk.ac.cam.ssjt2.dissertation.common.messages.*;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -39,7 +35,7 @@ public class AuthenticationClient {
         m_ClientKey = clientKey;
     }
 
-    public void retrieveSessionKey(String kdcUrl) throws IOException, NoSuchAlgorithmException, KDCException {
+    public void retrieveSessionKey(String kdcUrl) throws IOException, NoSuchAlgorithmException, SymmetricProtocolException {
         // Craft new KDC Request Message
         HttpClient kdcClient = new HttpClient(kdcUrl);
         Random rand = new Random();

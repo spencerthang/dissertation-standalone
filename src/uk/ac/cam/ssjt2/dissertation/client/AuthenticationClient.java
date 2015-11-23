@@ -24,12 +24,15 @@ import java.util.Random;
 public class AuthenticationClient {
 
     private final int m_ClientId;
+
     private final int m_TargetId;
     private final SecretKey m_ClientKey;
 
     private SecretKey m_SessionKey = null;
     private String m_SessionId;
     private String m_KDCMessageToServer;
+    private HttpClient m_ServerClient = null;
+    private boolean m_Authenticated = false;
 
     public AuthenticationClient(int clientId, int targetId, SecretKey clientKey) {
         m_ClientId = clientId;
@@ -66,23 +69,37 @@ public class AuthenticationClient {
             throw new SymmetricProtocolException("Cannot connect to server without KDC token");
         }
 
-        HttpClient serverClient = new HttpClient(targetUrl);
+        m_ServerClient = new HttpClient(targetUrl);
         ServerHandshakeMessage handshakeMessage = new ServerHandshakeMessage(m_KDCMessageToServer);
 
         // Make Server Handshake
-        String encryptedServerChallenge = serverClient.post(new PostContents(handshakeMessage));
+        String encryptedServerChallenge = m_ServerClient.post(new PostContents(handshakeMessage));
         ServerChallengeMessage serverChallenge = ((ServerChallengeMessage)Message.fromEncryptedResponse(m_SessionKey, encryptedServerChallenge));
         m_SessionId = serverChallenge.getSessionId();
 
         System.out.println("Server assigned session id: " + m_SessionId);
 
-        // Repsonse to Server Challenge
+        // Respond to Server Challenge
         ServerChallengeResponseMessage serverChallengeResponseMessage = new ServerChallengeResponseMessage(serverChallenge.getServerNonce());
+        String encryptedServerAuthentication = sendEncryptedMessage(serverChallengeResponseMessage);
+        ServerAuthenticationStatusMessage serverAuthentication = ((ServerAuthenticationStatusMessage)Message.fromEncryptedResponse(m_SessionKey, encryptedServerAuthentication));
+
+        System.out.println("Server authentication: " + serverAuthentication.isAuthenticated() + " with server nonce " + serverChallenge.getServerNonce());
+
+        // Check if we are authenticated
+        m_Authenticated = serverAuthentication.isAuthenticated();
+        return m_Authenticated;
+    }
+
+    public String sendUserMessage(UserMessage send) throws IOException, SymmetricProtocolException {
+        String encryptedResponse = sendEncryptedMessage(send);
+        UserMessageResponse userMessageResponse = ((UserMessageResponse)Message.fromEncryptedResponse(m_SessionKey, encryptedResponse));
+        return userMessageResponse.getResponse();
+    }
+
+    private String sendEncryptedMessage(Message send) throws IOException, SymmetricProtocolException {
         try {
-            String encryptedServerAuthentication = serverClient.post(new EncryptedPostContents(serverChallengeResponseMessage, m_SessionKey, m_SessionId));
-            ServerAuthenticationStatusMessage serverAuthentication = ((ServerAuthenticationStatusMessage)Message.fromEncryptedResponse(m_SessionKey, encryptedServerAuthentication));
-            System.out.println("Server authentication: " + serverAuthentication.isAuthenticated() + " with server nonce " + serverChallenge.getServerNonce());
-            return serverAuthentication.isAuthenticated();
+            return m_ServerClient.post(new EncryptedPostContents(send, m_SessionKey, m_SessionId));
         } catch (GeneralSecurityException e) {
             throw new SymmetricProtocolException(e);
         }
@@ -98,5 +115,9 @@ public class AuthenticationClient {
 
     protected SecretKey getSessionKey() {
         return m_SessionKey;
+    }
+
+    public boolean isAuthenticated() {
+        return m_ServerClient != null && m_Authenticated;
     }
 }

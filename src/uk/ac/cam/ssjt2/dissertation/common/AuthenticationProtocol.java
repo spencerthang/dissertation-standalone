@@ -11,5 +11,7 @@ public class AuthenticationProtocol {
     public static final byte HEADER_SERVER_CHALLENGE = 4;
     public static final byte HEADER_SERVER_CHALLENGE_RESPONSE = 5;
     public static final byte HEADER_SERVER_AUTHENTICATION_STATUS = 6;
+    public static final byte HEADER_SERVER_USER_MESSAGE = 10;
+    public static final byte HEADER_SERVER_USER_MESSAGE_RESPONSE = 11;
 
 }

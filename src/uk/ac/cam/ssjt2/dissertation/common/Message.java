@@ -2,10 +2,7 @@ package uk.ac.cam.ssjt2.dissertation.common;
 
 import com.google.gson.Gson;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.SymmetricProtocolException;
-import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
-import uk.ac.cam.ssjt2.dissertation.common.messages.ServerAuthenticationStatusMessage;
-import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeMessage;
-import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeResponseMessage;
+import uk.ac.cam.ssjt2.dissertation.common.messages.*;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -55,6 +52,8 @@ public class Message {
                     return gson.fromJson(decryptedJson, ServerChallengeMessage.class);
                 case AuthenticationProtocol.HEADER_SERVER_AUTHENTICATION_STATUS:
                     return gson.fromJson(decryptedJson, ServerAuthenticationStatusMessage.class);
+                case AuthenticationProtocol.HEADER_SERVER_USER_MESSAGE_RESPONSE:
+                    return gson.fromJson(decryptedJson, UserMessageResponse.class);
                 default:
                     return header;
             }

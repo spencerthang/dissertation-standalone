@@ -8,6 +8,8 @@ class AuthenticationProtocol
     const HEADER_SERVER_CHALLENGE = 4;
     const HEADER_SERVER_CHALLENGE_RESPONSE = 5;
     const HEADER_SERVER_AUTHENTICATION_STATUS = 6;
+    const HEADER_SERVER_USER_MESSAGE = 10;
+    const HEADER_SERVER_USER_MESSAGE_RESPONSE = 11;
 }
 
 // The server will accept well-formed HTTP POST requests only.
@@ -61,7 +63,9 @@ switch($data['Header']) {
         break;
     case AuthenticationProtocol::HEADER_SERVER_CHALLENGE_RESPONSE:
         // Check if nonce matches
-        if($_SESSION['ServerNonce'] == $data['ServerNonce']) {
+        if(isset($_SESSION['ServerNonce'])
+            && isset($data['ServerNonce'])
+            && $_SESSION['ServerNonce'] == $data['ServerNonce']) {
             $_SESSION['Authenticated'] = true;
         }
 
@@ -71,6 +75,30 @@ switch($data['Header']) {
         );
         result($authenticationStatus, $_SESSION['SessionKey']);
 
+        break;
+    // Application code goes here, sent under SERVER_USER_MESSAGE and SERVER_USER_MESSAGE_RESPONSE.
+    case AuthenticationProtocol::HEADER_SERVER_USER_MESSAGE:
+        if(!isset($_SESSION['Authenticated']) || !$_SESSION['Authenticated']) {
+            result_error('Protocol authentication failure.');
+        }
+
+        if(!isset($data['Request']) || !isset($data['RequestType'])) {
+            result_error('Malformed user message, missing request or request type.');
+        }
+
+        $request = json_decode($data['Request'], true);
+
+        if(!isset($request['cmd'])) {
+            result_error('Malformed user message, missing command.');
+        }
+
+        switch($request['cmd']) {
+            case 'add':
+                user_result($request['x'] + $request['y']);
+                break;
+            default:
+                result_error('Unknown command.');
+        }
         break;
     default:
         result_error('Request payload had unknown header: ' . $data['Header']);
@@ -90,6 +118,14 @@ function result($data, $key) {
         'IV' => base64_encode($iv)
     );
     die(json_encode($result));
+}
+
+function user_result($response) {
+    $userResponse = array(
+        'Header' => AuthenticationProtocol::HEADER_SERVER_USER_MESSAGE_RESPONSE,
+        'Response' => $response
+    );
+    result($userResponse, $_SESSION['SessionKey']);
 }
 
 function decryptMessage($data, $iv, $key) {

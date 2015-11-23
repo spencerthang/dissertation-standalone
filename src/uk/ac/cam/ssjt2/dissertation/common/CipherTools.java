@@ -1,26 +1,26 @@
 package uk.ac.cam.ssjt2.dissertation.common;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.security.*;
 
 /**
  * Created by Spencer on 4/11/2015.
  */
 public class CipherTools {
 
-    public static final String CipherTransformation = "AES/CBC/PKCS5Padding";
+    public static final String CipherTransformation = "AES/GCM/NoPadding";
     public static final String CipherAlgorithm = "AES";
     public static final int CipherIVSize = 16;
     private final Cipher m_EncryptCipher;
     private final Cipher m_DecryptCipher;
 
-    public CipherTools(SecretKey key, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException {
-        m_EncryptCipher = Cipher.getInstance(CipherTransformation);
-        m_DecryptCipher = Cipher.getInstance(CipherTransformation);
+    public CipherTools(SecretKey key, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchProviderException {
+        Security.addProvider(new BouncyCastleProvider());
+        m_EncryptCipher = Cipher.getInstance(CipherTransformation, "BC");
+        m_DecryptCipher = Cipher.getInstance(CipherTransformation, "BC");
         m_EncryptCipher.init(Cipher.ENCRYPT_MODE, key, iv);
         m_DecryptCipher.init(Cipher.DECRYPT_MODE, key, iv);
     }

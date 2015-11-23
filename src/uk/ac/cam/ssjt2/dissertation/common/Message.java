@@ -1,6 +1,7 @@
 package uk.ac.cam.ssjt2.dissertation.common;
 
 import com.google.gson.Gson;
+import uk.ac.cam.ssjt2.dissertation.common.exceptions.SymmetricProtocolException;
 import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
 import uk.ac.cam.ssjt2.dissertation.common.messages.ServerAuthenticationStatusMessage;
 import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeMessage;
@@ -11,6 +12,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
+import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -31,7 +33,7 @@ public class Message {
         return gson.toJson(this);
     }
 
-    public static Message fromEncryptedResponse(SecretKey key, String response) {
+    public static Message fromEncryptedResponse(SecretKey key, String response) throws SymmetricProtocolException {
         // Extract IV and Encrypted Message
         Gson gson = new Gson();
         EncryptedMessage encryptedResponse = gson.fromJson(response, EncryptedMessage.class);
@@ -57,21 +59,9 @@ public class Message {
                     return header;
             }
 
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
+        } catch (GeneralSecurityException e) {
+            throw new SymmetricProtocolException(e);
         }
-
-        return null;
     }
 
     public byte getHeader() {

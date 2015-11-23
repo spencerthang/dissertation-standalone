@@ -1,5 +1,6 @@
 package uk.ac.cam.ssjt2.dissertation.client;
 
+import com.sun.javaws.exceptions.InvalidArgumentException;
 import uk.ac.cam.ssjt2.dissertation.common.Message;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.InvalidNonceException;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.InvalidTargetException;
@@ -11,6 +12,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -35,7 +37,7 @@ public class AuthenticationClient {
         m_ClientKey = clientKey;
     }
 
-    public void retrieveSessionKey(String kdcUrl) throws IOException, NoSuchAlgorithmException, SymmetricProtocolException {
+    public void retrieveSessionKey(String kdcUrl) throws IOException, SymmetricProtocolException {
         // Craft new KDC Request Message
         HttpClient kdcClient = new HttpClient(kdcUrl);
         Random rand = new Random();
@@ -59,7 +61,11 @@ public class AuthenticationClient {
         System.out.println("KDC Response validated, nonce: " + kdcResponse.getClientNonce() + ", target: " + kdcResponse.getTargetId());
     }
 
-    public boolean connectToServer(String targetUrl) throws IOException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
+    public boolean connectToServer(String targetUrl) throws IOException, SymmetricProtocolException {
+        if(m_SessionKey == null || m_KDCMessageToServer == null) {
+            throw new SymmetricProtocolException("Cannot connect to server without KDC token");
+        }
+
         HttpClient serverClient = new HttpClient(targetUrl);
         ServerHandshakeMessage handshakeMessage = new ServerHandshakeMessage(m_KDCMessageToServer);
 
@@ -72,12 +78,14 @@ public class AuthenticationClient {
 
         // Repsonse to Server Challenge
         ServerChallengeResponseMessage serverChallengeResponseMessage = new ServerChallengeResponseMessage(serverChallenge.getServerNonce());
-        String encryptedServerAuthentication = serverClient.post(new EncryptedPostContents(serverChallengeResponseMessage, m_SessionKey, m_SessionId));
-        ServerAuthenticationStatusMessage serverAuthentication = ((ServerAuthenticationStatusMessage)Message.fromEncryptedResponse(m_SessionKey, encryptedServerAuthentication));
-
-        System.out.println("Server authentication: " + serverAuthentication.isAuthenticated() + " with server nonce " + serverChallenge.getServerNonce());
-
-        return serverAuthentication.isAuthenticated();
+        try {
+            String encryptedServerAuthentication = serverClient.post(new EncryptedPostContents(serverChallengeResponseMessage, m_SessionKey, m_SessionId));
+            ServerAuthenticationStatusMessage serverAuthentication = ((ServerAuthenticationStatusMessage)Message.fromEncryptedResponse(m_SessionKey, encryptedServerAuthentication));
+            System.out.println("Server authentication: " + serverAuthentication.isAuthenticated() + " with server nonce " + serverChallenge.getServerNonce());
+            return serverAuthentication.isAuthenticated();
+        } catch (GeneralSecurityException e) {
+            throw new SymmetricProtocolException(e);
+        }
     }
 
     protected SecretKey getClientKey() {

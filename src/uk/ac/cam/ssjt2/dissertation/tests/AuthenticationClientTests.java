@@ -38,14 +38,14 @@ public class AuthenticationClientTests {
     }
 
     @Test
-    public void canPerformSessionKeyRetrieval() throws IOException, NoSuchAlgorithmException, SymmetricProtocolException {
+    public void canPerformSessionKeyRetrieval() throws IOException, SymmetricProtocolException {
         AuthenticationClient client = new AuthenticationClient(c_ClientId, c_TargetId, m_ClientKey);
         client.retrieveSessionKey(c_KdcUrl);
         assertNotNull(client);
     }
 
     @Test
-    public void canConnectToServer() throws IOException, NoSuchAlgorithmException, SymmetricProtocolException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException {
+    public void canConnectToServer() throws IOException, SymmetricProtocolException {
         AuthenticationClient client = new AuthenticationClient(c_ClientId, c_TargetId, m_ClientKey);
         client.retrieveSessionKey(c_KdcUrl);
         assertTrue(client.connectToServer(c_ServerUrl));

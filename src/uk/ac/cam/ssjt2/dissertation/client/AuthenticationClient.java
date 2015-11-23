@@ -1,21 +1,14 @@
 package uk.ac.cam.ssjt2.dissertation.client;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import uk.ac.cam.ssjt2.dissertation.common.Message;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.InvalidNonceException;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.InvalidTargetException;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.SymmetricProtocolException;
 import uk.ac.cam.ssjt2.dissertation.common.messages.*;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 /**

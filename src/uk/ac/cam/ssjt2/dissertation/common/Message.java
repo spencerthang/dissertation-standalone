@@ -3,17 +3,14 @@ package uk.ac.cam.ssjt2.dissertation.common;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.SymmetricProtocolException;
-import uk.ac.cam.ssjt2.dissertation.common.messages.*;
+import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
+import uk.ac.cam.ssjt2.dissertation.common.messages.ServerAuthenticationStatusMessage;
+import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeMessage;
+import uk.ac.cam.ssjt2.dissertation.common.messages.UserMessageResponse;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import java.security.GeneralSecurityException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by Spencer on 2/11/2015.

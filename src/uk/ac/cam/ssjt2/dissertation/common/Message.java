@@ -34,11 +34,16 @@ public class Message {
         // Extract IV and Encrypted Message
         Gson gson = new Gson();
         EncryptedMessage encryptedResponse = gson.fromJson(response, EncryptedMessage.class);
-        IvParameterSpec iv = new IvParameterSpec(encryptedResponse.getIV());
+
+        // Check if an error occured
+        if(encryptedResponse.getError() != null) {
+            throw new SymmetricProtocolException(encryptedResponse.getError());
+        }
 
         // Decrypt KDC Response
         // Decrypt into byte array
         try {
+            IvParameterSpec iv = new IvParameterSpec(encryptedResponse.getIV());
             CipherTools clientCipher = new CipherTools(key, iv);
             String decryptedJson = new String(clientCipher.decrypt(encryptedResponse.getData()));
 

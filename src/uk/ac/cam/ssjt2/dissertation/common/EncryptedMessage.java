@@ -8,10 +8,12 @@ import javax.xml.bind.DatatypeConverter;
 public class EncryptedMessage {
     String Data;
     String IV;
+    String Error;
 
-    public EncryptedMessage(String data, String iv) {
+    public EncryptedMessage(String data, String iv, String error) {
         Data = data;
         IV = iv;
+        Error = error;
     }
 
     public byte[] getData() {
@@ -21,4 +23,6 @@ public class EncryptedMessage {
     public byte[] getIV() {
         return DatatypeConverter.parseBase64Binary(IV);
     }
+
+    public String getError() { return Error; }
 }

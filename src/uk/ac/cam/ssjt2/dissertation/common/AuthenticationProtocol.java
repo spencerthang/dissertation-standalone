@@ -10,6 +10,6 @@ public class AuthenticationProtocol {
     public static final byte HEADER_SERVER_HANDSHAKE = 3;
     public static final byte HEADER_SERVER_CHALLENGE = 4;
     public static final byte HEADER_SERVER_CHALLENGE_RESPONSE = 5;
-    public static final byte HEADER_SERVER_AUTHENTICATED_RESPONSE = 6;
+    public static final byte HEADER_SERVER_AUTHENTICATION_STATUS = 6;
 
 }

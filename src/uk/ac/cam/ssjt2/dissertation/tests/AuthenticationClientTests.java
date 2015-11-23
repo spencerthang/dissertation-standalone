@@ -17,6 +17,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class AuthenticationClientTests {
 
@@ -47,7 +48,7 @@ public class AuthenticationClientTests {
     public void canConnectToServer() throws IOException, NoSuchAlgorithmException, KDCException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException {
         AuthenticationClient client = new AuthenticationClient(c_ClientId, c_TargetId, m_ClientKey);
         client.retrieveSessionKey(c_KdcUrl);
-        client.connectToServer(c_ServerUrl);
+        assertTrue(client.connectToServer(c_ServerUrl));
         assertNotNull(client);
     }
 

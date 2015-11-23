@@ -7,7 +7,7 @@ class AuthenticationProtocol
     const HEADER_SERVER_HANDSHAKE = 3;
     const HEADER_SERVER_CHALLENGE = 4;
     const HEADER_SERVER_CHALLENGE_RESPONSE = 5;
-    const HEADER_SERVER_AUTHENTICATED_RESPONSE = 6;
+    const HEADER_SERVER_AUTHENTICATION_STATUS = 6;
 }
 
 // The server will accept well-formed HTTP POST requests only.
@@ -24,7 +24,6 @@ if(!isset($_POST['IV']) || !isset($_POST['SessionId'])) {
 
     $data = decryptMessage($_POST['Data'], $_POST['IV'], $_SESSION['SessionKey']);
     $data = json_decode($data, true);
-    var_dump($data);
 }
 
 // Check for the presence of a header
@@ -58,6 +57,19 @@ switch($data['Header']) {
             "SessionId" => session_id()
         );
         result($serverChallenge, $sessionKey);
+
+        break;
+    case AuthenticationProtocol::HEADER_SERVER_CHALLENGE_RESPONSE:
+        // Check if nonce matches
+        if($_SESSION['ServerNonce'] == $data['ServerNonce']) {
+            $_SESSION['Authenticated'] = true;
+        }
+
+        $authenticationStatus = array(
+            "Header" => AuthenticationProtocol::HEADER_SERVER_AUTHENTICATION_STATUS,
+            "Authenticated" => $_SESSION['Authenticated']
+        );
+        result($authenticationStatus, $_SESSION['SessionKey']);
 
         break;
     default:

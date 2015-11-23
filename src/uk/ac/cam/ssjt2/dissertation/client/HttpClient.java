@@ -22,7 +22,6 @@ public class HttpClient {
         String urlParameters = "Data=" + URLEncoder.encode(data.getData());
         if(data.getBase64EncodedIV() != null) urlParameters += "&IV=" + URLEncoder.encode(data.getBase64EncodedIV());
         if(data.getSessionId() != null) urlParameters += "&SessionId=" + URLEncoder.encode(data.getSessionId());
-        System.out.println(data.getData());
         byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
         int postDataLength = postData.length;
 

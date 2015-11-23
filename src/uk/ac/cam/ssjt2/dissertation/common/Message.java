@@ -2,6 +2,7 @@ package uk.ac.cam.ssjt2.dissertation.common;
 
 import com.google.gson.Gson;
 import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
+import uk.ac.cam.ssjt2.dissertation.common.messages.ServerAuthenticationStatusMessage;
 import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeMessage;
 import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeResponseMessage;
 
@@ -50,7 +51,8 @@ public class Message {
                     return gson.fromJson(decryptedJson, KDCResponseMessage.class);
                 case AuthenticationProtocol.HEADER_SERVER_CHALLENGE:
                     return gson.fromJson(decryptedJson, ServerChallengeMessage.class);
-
+                case AuthenticationProtocol.HEADER_SERVER_AUTHENTICATION_STATUS:
+                    return gson.fromJson(decryptedJson, ServerAuthenticationStatusMessage.class);
                 default:
                     return header;
             }

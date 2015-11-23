@@ -73,8 +73,9 @@ public class AuthenticationClient {
         // Repsonse to Server Challenge
         ServerChallengeResponseMessage serverChallengeResponseMessage = new ServerChallengeResponseMessage(serverChallenge.getServerNonce());
         String encryptedServerAuthentication = serverClient.post(new EncryptedPostContents(serverChallengeResponseMessage, m_SessionKey, m_SessionId));
+        ServerAuthenticationStatusMessage serverAuthentication = ((ServerAuthenticationStatusMessage)Message.fromEncryptedResponse(m_SessionKey, encryptedServerAuthentication));
 
-        return true;
+        return serverAuthentication.isAuthenticated();
     }
 
     protected SecretKey getClientKey() {

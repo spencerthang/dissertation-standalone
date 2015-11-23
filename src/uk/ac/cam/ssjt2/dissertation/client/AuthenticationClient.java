@@ -6,15 +6,17 @@ import uk.ac.cam.ssjt2.dissertation.common.Message;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.InvalidNonceException;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.InvalidTargetException;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.KDCException;
-import uk.ac.cam.ssjt2.dissertation.common.messages.KDCRequestMessage;
-import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
-import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeMessage;
-import uk.ac.cam.ssjt2.dissertation.common.messages.ServerHandshakeMessage;
+import uk.ac.cam.ssjt2.dissertation.common.messages.*;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
@@ -28,6 +30,7 @@ public class AuthenticationClient {
     private final SecretKey m_ClientKey;
 
     private SecretKey m_SessionKey = null;
+    private String m_SessionId;
     private String m_KDCMessageToServer;
 
     public AuthenticationClient(int clientId, int targetId, SecretKey clientKey) {
@@ -44,7 +47,7 @@ public class AuthenticationClient {
         KDCRequestMessage kdcRequestMessage = new KDCRequestMessage(m_ClientId, m_TargetId, clientNonce);
 
         // Request KDC Response
-        String encryptedKDCResponse = kdcClient.post(kdcRequestMessage.getJson());
+        String encryptedKDCResponse = kdcClient.post(new PostContents(kdcRequestMessage));
         KDCResponseMessage kdcResponse = ((KDCResponseMessage)Message.fromEncryptedResponse(m_ClientKey, encryptedKDCResponse));
 
         // Validate KDC Response
@@ -58,13 +61,18 @@ public class AuthenticationClient {
         m_KDCMessageToServer = kdcResponse.getTargetMessage();
     }
 
-    public boolean connectToServer(String targetUrl) throws IOException {
+    public boolean connectToServer(String targetUrl) throws IOException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         HttpClient serverClient = new HttpClient(targetUrl);
         ServerHandshakeMessage handshakeMessage = new ServerHandshakeMessage(m_KDCMessageToServer);
 
         // Make Server Handshake
-        String encryptedServerChallenge = serverClient.post(handshakeMessage.getJson());
+        String encryptedServerChallenge = serverClient.post(new PostContents(handshakeMessage));
         ServerChallengeMessage serverChallenge = ((ServerChallengeMessage)Message.fromEncryptedResponse(m_SessionKey, encryptedServerChallenge));
+        m_SessionId = serverChallenge.getSessionId();
+
+        // Repsonse to Server Challenge
+        ServerChallengeResponseMessage serverChallengeResponseMessage = new ServerChallengeResponseMessage(serverChallenge.getServerNonce());
+        String encryptedServerAuthentication = serverClient.post(new EncryptedPostContents(serverChallengeResponseMessage, m_SessionKey, m_SessionId));
 
         return true;
     }

@@ -5,10 +5,15 @@ import uk.ac.cam.ssjt2.dissertation.client.AuthenticationClient;
 import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.KDCException;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 import static org.junit.Assert.assertNotNull;
@@ -39,7 +44,7 @@ public class AuthenticationClientTests {
     }
 
     @Test
-    public void canConnectToServer() throws IOException, NoSuchAlgorithmException, KDCException {
+    public void canConnectToServer() throws IOException, NoSuchAlgorithmException, KDCException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException {
         AuthenticationClient client = new AuthenticationClient(c_ClientId, c_TargetId, m_ClientKey);
         client.retrieveSessionKey(c_KdcUrl);
         client.connectToServer(c_ServerUrl);

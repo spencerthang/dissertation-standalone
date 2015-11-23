@@ -30,22 +30,4 @@ public class ServerHandshakeMessage extends Message {
         Handshake = handshake;
     }
 
-    public static class ServerHandshakeResult {
-        private final int m_ClientId;
-        private final SecretKey m_SessionKey;
-
-        public ServerHandshakeResult(int clientId, SecretKey sessionKey) {
-            m_ClientId = clientId;
-            m_SessionKey = sessionKey;
-        }
-
-        public int getClientId() {
-            return m_ClientId;
-        }
-
-        public SecretKey getSessionKey() {
-            return m_SessionKey;
-        }
-    }
-
 }

@@ -40,17 +40,16 @@ switch($data['Header']) {
         // Generate session key and IVs
         $sessionKey = openssl_random_pseudo_bytes(KEY_SIZE);
         $targetIV = openssl_random_pseudo_bytes(IV_SIZE);
-        $clientIV = openssl_random_pseudo_bytes(IV_SIZE);
 
         // Generate encrypted token for the target to verify client
         $targetMessage = array(
-            "SessionKey" => $sessionKey,
+            "SessionKey" => base64_encode($sessionKey),
             "ClientId" => $clientId,
         );
         $targetMessageEncrypted = openssl_encrypt(json_encode($targetMessage), PICO_CIPHER, $targetKey, OPENSSL_RAW_DATA, $targetIV);
         $targetMessage = array(
             "Data" => base64_encode($targetMessageEncrypted),
-            "IV" => $targetIV
+            "IV" => base64_encode($targetIV)
         );
 
         // Generate encrypted response for client
@@ -58,13 +57,11 @@ switch($data['Header']) {
             "Header" => AuthenticationProtocol::HEADER_KDC_RESPONSE,
             "SessionKey" => base64_encode($sessionKey),
             "TargetId" => $data['TargetId'],
-            "TargetIV" => base64_encode($targetIV),
             "ClientNonce" => $clientNonce,
-            "TargetMessage" => json_encode($targetMessage),
+            "TargetMessage" => base64_encode(json_encode($targetMessage)),
         );
 
-        $clientResponse = openssl_encrypt(json_encode($clientResponse), PICO_CIPHER, $clientKey, OPENSSL_RAW_DATA, $clientIV);
-        result($clientResponse, $clientIV);
+        result($clientResponse, $clientKey);
 
         break;
     default:
@@ -76,9 +73,14 @@ function result_error($error) {
     die(json_encode($result));
 }
 
-function result($data, $iv = null) {
-    $result = array('Data' => base64_encode($data), 'Length' => mb_strlen($data, '8bit'));
-    if($iv !== null) $result['IV'] = base64_encode($iv);
+function result($data, $key) {
+    $iv = openssl_random_pseudo_bytes(IV_SIZE);
+    $data = openssl_encrypt(json_encode($data), PICO_CIPHER, $key, OPENSSL_RAW_DATA, $iv);
+    $result = array(
+        'Data' => base64_encode($data),
+        'Length' => mb_strlen($data, '8bit'),
+        'IV' => base64_encode($iv)
+    );
     die(json_encode($result));
 }
 

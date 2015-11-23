@@ -12,14 +12,21 @@ import java.io.InputStream;
  */
 public class ServerChallengeMessage extends Message {
 
-    public ServerChallengeMessage(int nonce) throws IOException {
+    private final int ServerNonce;
+    private final int ClientId;
+
+    public ServerChallengeMessage(int serverNonce, int clientId) throws IOException {
         super(AuthenticationProtocol.HEADER_SERVER_CHALLENGE);
-        //m_Buffer.writeInt(nonce);
+        ServerNonce = serverNonce;
+        ClientId = clientId;
     }
 
-    public static int readFromStream(InputStream inputStream) throws IOException {
-        DataInputStream dis = new DataInputStream(inputStream);
-        return dis.readInt();
+    public int getServerNonce() {
+        return ServerNonce;
+    }
+
+    public int getClientId() {
+        return ClientId;
     }
 
 }

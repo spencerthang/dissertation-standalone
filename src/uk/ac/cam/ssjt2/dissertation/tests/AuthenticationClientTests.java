@@ -16,6 +16,7 @@ import static org.junit.Assert.assertNotNull;
 public class AuthenticationClientTests {
 
     public static final String c_KdcUrl = "http://localhost/pico/kdc.php";
+    public static final String c_ServerUrl = "http://localhost/pico/server.php";
     public static final int c_ClientId = 1;
     public static final int c_TargetId = 2;
     public final SecretKey m_ClientKey;
@@ -34,6 +35,14 @@ public class AuthenticationClientTests {
     public void canPerformSessionKeyRetrieval() throws IOException, NoSuchAlgorithmException, KDCException {
         AuthenticationClient client = new AuthenticationClient(c_ClientId, c_TargetId, m_ClientKey);
         client.retrieveSessionKey(c_KdcUrl);
+        assertNotNull(client);
+    }
+
+    @Test
+    public void canConnectToServer() throws IOException, NoSuchAlgorithmException, KDCException {
+        AuthenticationClient client = new AuthenticationClient(c_ClientId, c_TargetId, m_ClientKey);
+        client.retrieveSessionKey(c_KdcUrl);
+        client.connectToServer(c_ServerUrl);
         assertNotNull(client);
     }
 

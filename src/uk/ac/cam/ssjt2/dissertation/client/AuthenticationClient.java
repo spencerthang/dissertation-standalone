@@ -8,6 +8,8 @@ import uk.ac.cam.ssjt2.dissertation.common.exceptions.InvalidTargetException;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.KDCException;
 import uk.ac.cam.ssjt2.dissertation.common.messages.KDCRequestMessage;
 import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
+import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeMessage;
+import uk.ac.cam.ssjt2.dissertation.common.messages.ServerHandshakeMessage;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
@@ -56,8 +58,15 @@ public class AuthenticationClient {
         m_KDCMessageToServer = kdcResponse.getTargetMessage();
     }
 
-    public boolean connectToServer(String targetAddress, int serverPort) throws IOException {
-        return false;
+    public boolean connectToServer(String targetUrl) throws IOException {
+        HttpClient serverClient = new HttpClient(targetUrl);
+        ServerHandshakeMessage handshakeMessage = new ServerHandshakeMessage(m_KDCMessageToServer);
+
+        // Make Server Handshake
+        String encryptedServerChallenge = serverClient.post(handshakeMessage.getJson());
+        ServerChallengeMessage serverChallenge = ((ServerChallengeMessage)Message.fromEncryptedResponse(m_SessionKey, encryptedServerChallenge));
+
+        return true;
     }
 
     protected SecretKey getClientKey() {

@@ -48,7 +48,7 @@ switch($data['Header']) {
 
         break;
     default:
-        die('Request payload had unknown header: ' + $data['Header']);
+        result_error('Request payload had unknown header: ' . $data['Header']);
 }
 
 function result_error($error) {

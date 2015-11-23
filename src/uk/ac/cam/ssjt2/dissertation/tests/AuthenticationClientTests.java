@@ -21,7 +21,7 @@ public class AuthenticationClientTests {
     public final SecretKey m_ClientKey;
 
     public AuthenticationClientTests() throws NoSuchAlgorithmException {
-        m_ClientKey = new SecretKeySpec(DatatypeConverter.parseBase64Binary("eCd2T3UxOG8WfbuTm2DxiQ=="), "AES");
+        m_ClientKey = new SecretKeySpec(DatatypeConverter.parseBase64Binary("eCd2T3UxOG8WfbuTm2DxiQ=="), CipherTools.CipherAlgorithm);
     }
 
     @Test

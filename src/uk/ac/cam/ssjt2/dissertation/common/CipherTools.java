@@ -13,6 +13,7 @@ import java.security.SecureRandom;
 public class CipherTools {
 
     public static final String CipherTransformation = "AES/CBC/PKCS5Padding";
+    public static final String CipherAlgorithm = "AES";
     private final Cipher m_EncryptCipher;
     private final Cipher m_DecryptCipher;
 
@@ -32,7 +33,7 @@ public class CipherTools {
     }
 
     public static SecretKey GenerateSecretKey() throws NoSuchAlgorithmException {
-        KeyGenerator generator = KeyGenerator.getInstance("AES");
+        KeyGenerator generator = KeyGenerator.getInstance(CipherAlgorithm);
         generator.init(128);
         return generator.generateKey();
     }

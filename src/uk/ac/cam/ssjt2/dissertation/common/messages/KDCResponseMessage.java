@@ -43,7 +43,7 @@ public class KDCResponseMessage extends Message {
     }
 
     public SecretKey getSessionKey() {
-        return new SecretKeySpec(DatatypeConverter.parseBase64Binary(SessionKey), CipherTools.CipherTransformation);
+        return new SecretKeySpec(DatatypeConverter.parseBase64Binary(SessionKey), CipherTools.CipherAlgorithm);
     }
 
     public String getTargetMessage() {

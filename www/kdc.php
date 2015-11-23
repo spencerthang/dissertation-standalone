@@ -14,6 +14,11 @@ if(!isset($_POST['Data']))
 
 $data = json_decode($_POST['Data'], true);
 
+// Check if JSON decode was successful
+if($data === null) {
+    result_error('Malformed request - invalid JSON.');
+}
+
 // Check for the presence of a header
 if(!isset($data['Header'])) {
     result_error('Request payload did not provide a header.');
@@ -22,6 +27,10 @@ if(!isset($data['Header'])) {
 switch($data['Header']) {
     case AuthenticationProtocol::HEADER_KDC_REQUEST:
         // Parse input from client
+        if(!isset($data['ClientId']) || !isset($data['TargetId']) || !isset($data['ClientNonce'])) {
+            result_error('Malformed KDC request.');
+        }
+
         $clientId = $data['ClientId'];
         $targetId = $data['TargetId'];
         $clientNonce = $data["ClientNonce"];

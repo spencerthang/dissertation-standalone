@@ -24,8 +24,21 @@ if(!isset($_POST['IV']) || !isset($_POST['SessionId'])) {
     session_id($_POST['SessionId']);
     session_start();
 
+    if(!isset($_SESSION['SessionKey'])) {
+        result_error('Invalid session, session may have expired.');
+    }
+
     $data = decryptMessage($_POST['Data'], $_POST['IV'], $_SESSION['SessionKey']);
+    if($data === false || $data === null) {
+        result_error('Malformed request - failed to decode request.');
+    }
+
     $data = json_decode($data, true);
+}
+
+// Check if JSON decode was successful
+if($data === null) {
+    result_error('Malformed request - invalid JSON.');
 }
 
 // Check for the presence of a header
@@ -40,7 +53,13 @@ switch($data['Header']) {
     case AuthenticationProtocol::HEADER_SERVER_HANDSHAKE:
         // Decrypt handshake
         $encrypted = json_decode(base64_decode($data['Handshake']), true);
+        if($encrypted === null || !isset($encrypted['Data']) || !isset($encrypted['IV'])) {
+            result_error('Handshake invalid, failed to obtain session key.');
+        }
         $handshake = json_decode(decryptMessage($encrypted['Data'], $encrypted['IV'], $serverKey), true);
+        if($handshake === null || !isset($handshake['SessionKey']) || !isset($handshake['ClientId'])) {
+            result_error('Handshake invalid, failed to obtain session key.');
+        }
 
         $sessionKey = base64_decode($handshake['SessionKey']);
         $clientId = $handshake['ClientId'];

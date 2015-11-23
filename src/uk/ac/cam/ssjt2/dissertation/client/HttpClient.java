@@ -3,6 +3,7 @@ package uk.ac.cam.ssjt2.dissertation.client;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -16,15 +17,12 @@ public class HttpClient {
         m_Url = new URL(url);
     }
 
-    // Post unencrypted data (no IV)
-    public String post(String data) throws IOException {
-        return post(data, null);
-    }
-
-    // Post encrypted data (with IV) or unencrypted data (IV = null)
-    public String post(String data, String iv) throws IOException {
-        String urlParameters = "Data=" + data;
-        if(iv != null) urlParameters += "&IV=" + iv;
+    // HTTP Post with post contents
+    public String post(PostContents data) throws IOException {
+        String urlParameters = "Data=" + URLEncoder.encode(data.getData());
+        if(data.getBase64EncodedIV() != null) urlParameters += "&IV=" + URLEncoder.encode(data.getBase64EncodedIV());
+        if(data.getSessionId() != null) urlParameters += "&SessionId=" + URLEncoder.encode(data.getSessionId());
+        System.out.println(data.getData());
         byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
         int postDataLength = postData.length;
 

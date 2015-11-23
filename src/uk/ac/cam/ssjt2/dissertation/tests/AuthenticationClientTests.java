@@ -4,6 +4,7 @@ import org.junit.Test;
 import uk.ac.cam.ssjt2.dissertation.client.AuthenticationClient;
 import uk.ac.cam.ssjt2.dissertation.common.CipherTools;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.SymmetricProtocolException;
+import uk.ac.cam.ssjt2.dissertation.common.messages.UserMessage;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -16,6 +17,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -50,6 +52,24 @@ public class AuthenticationClientTests {
         client.retrieveSessionKey(c_KdcUrl);
         assertTrue(client.connectToServer(c_ServerUrl));
         assertNotNull(client);
+    }
+
+    @Test
+    public void canSendAddCommandToTestServer() throws IOException, SymmetricProtocolException {
+        int x = 16, y = 30, expected = x + y;
+
+        AuthenticationClient client = new AuthenticationClient(c_ClientId, c_TargetId, m_ClientKey);
+        client.retrieveSessionKey(c_KdcUrl);
+        assertTrue(client.connectToServer(c_ServerUrl));
+        String response = client.sendUserMessage(new UserMessage("{\n" +
+                "  \"cmd\": \"add\",\n" +
+                "  \"x\": \"" + x + "\",\n" +
+                "  \"y\": \"" + y + "\"\n" +
+                "}"));
+
+        System.out.println("Add x: " + x + ", y: " + y + ", expected: " + expected);
+        System.out.println("Server response: " + response);
+        assertEquals(Integer.parseInt(response), expected);
     }
 
 

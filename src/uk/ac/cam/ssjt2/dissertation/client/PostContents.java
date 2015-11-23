@@ -29,4 +29,8 @@ public class PostContents {
         return null;
     }
 
+    public String getBase64EncodedHMAC() {
+        return null;
+    }
+
 }

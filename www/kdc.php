@@ -53,7 +53,8 @@ switch($data['Header']) {
         $targetMessageEncrypted = openssl_encrypt(json_encode($targetMessage), PICO_CIPHER, $targetKey, OPENSSL_RAW_DATA, $targetIV);
         $targetMessage = array(
             "Data" => base64_encode($targetMessageEncrypted),
-            "IV" => base64_encode($targetIV)
+            "IV" => base64_encode($targetIV),
+            "HMAC" => base64_encode(hash_hmac(HMAC_CIPHER, $targetMessageEncrypted, $targetKey, true))
         );
 
         // Generate encrypted response for client
@@ -83,7 +84,8 @@ function result($data, $key) {
     $result = array(
         'Data' => base64_encode($data),
         'Length' => mb_strlen($data, '8bit'),
-        'IV' => base64_encode($iv)
+        'IV' => base64_encode($iv),
+        'HMAC' => base64_encode(hash_hmac(HMAC_CIPHER, $data, $key, true))
     );
     die(json_encode($result));
 }

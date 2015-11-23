@@ -28,7 +28,7 @@ if(!isset($_POST['IV']) || !isset($_POST['SessionId'])) {
         result_error('Invalid session, session may have expired.');
     }
 
-    $data = decryptMessage($_POST['Data'], $_POST['IV'], $_SESSION['SessionKey']);
+    $data = decryptMessage($_POST['Data'], $_POST['IV'], $_POST['HMAC'], $_SESSION['SessionKey']);
     if($data === false || $data === null) {
         result_error('Malformed request - failed to decode request.');
     }
@@ -56,7 +56,7 @@ switch($data['Header']) {
         if($encrypted === null || !isset($encrypted['Data']) || !isset($encrypted['IV'])) {
             result_error('Handshake invalid, failed to obtain session key.');
         }
-        $handshake = json_decode(decryptMessage($encrypted['Data'], $encrypted['IV'], $serverKey), true);
+        $handshake = json_decode(decryptMessage($encrypted['Data'], $encrypted['IV'], $encrypted['HMAC'], $serverKey), true);
         if($handshake === null || !isset($handshake['SessionKey']) || !isset($handshake['ClientId'])) {
             result_error('Handshake invalid, failed to obtain session key.');
         }
@@ -134,7 +134,8 @@ function result($data, $key) {
     $result = array(
         'Data' => base64_encode($data),
         'Length' => mb_strlen($data, '8bit'),
-        'IV' => base64_encode($iv)
+        'IV' => base64_encode($iv),
+        'HMAC' => base64_encode(hash_hmac(HMAC_CIPHER, $data, $key, true))
     );
     die(json_encode($result));
 }
@@ -147,9 +148,12 @@ function user_result($response) {
     result($userResponse, $_SESSION['SessionKey']);
 }
 
-function decryptMessage($data, $iv, $key) {
+function decryptMessage($data, $iv, $hmac, $key) {
     $data = base64_decode($data);
     $iv = base64_decode($iv);
+    if(hash_hmac(HMAC_CIPHER, $data, $key, true) != base64_decode($hmac)) {
+        return null;
+    }
     $decrypted = openssl_decrypt($data, PICO_CIPHER, $key, OPENSSL_RAW_DATA, $iv);
     return $decrypted;
 }

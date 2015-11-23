@@ -3,14 +3,18 @@ package uk.ac.cam.ssjt2.dissertation.common;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import uk.ac.cam.ssjt2.dissertation.common.exceptions.SymmetricProtocolException;
-import uk.ac.cam.ssjt2.dissertation.common.messages.KDCResponseMessage;
-import uk.ac.cam.ssjt2.dissertation.common.messages.ServerAuthenticationStatusMessage;
-import uk.ac.cam.ssjt2.dissertation.common.messages.ServerChallengeMessage;
-import uk.ac.cam.ssjt2.dissertation.common.messages.UserMessageResponse;
+import uk.ac.cam.ssjt2.dissertation.common.messages.*;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 /**
  * Created by Spencer on 2/11/2015.
@@ -48,6 +52,14 @@ public class Message {
         try {
             IvParameterSpec iv = new IvParameterSpec(encryptedResponse.getIV());
             CipherTools clientCipher = new CipherTools(key, iv);
+
+            // Verify MAC
+            byte[] actual = clientCipher.mac(encryptedResponse.getData());
+            byte[] expected = encryptedResponse.getHMAC();
+            if(!Arrays.equals(expected, actual)) {
+                throw new SymmetricProtocolException("HMAC of message failed to verify");
+            }
+
             String decryptedJson = new String(clientCipher.decrypt(encryptedResponse.getData()));
 
             // Decode to message to determine the packet header

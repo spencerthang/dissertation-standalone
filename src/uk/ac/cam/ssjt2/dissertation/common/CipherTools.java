@@ -11,11 +11,13 @@ import java.security.*;
  */
 public class CipherTools {
 
-    public static final String CipherTransformation = "AES/GCM/NoPadding";
+    public static final String CipherTransformation = "AES/CBC/PKCS5Padding";
     public static final String CipherAlgorithm = "AES";
+    public static final String CipherMac = "HMac-SHA256";
     public static final int CipherIVSize = 16;
     private final Cipher m_EncryptCipher;
     private final Cipher m_DecryptCipher;
+    private final Mac m_Mac;
 
     public CipherTools(SecretKey key, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchProviderException {
         Security.addProvider(new BouncyCastleProvider());
@@ -23,6 +25,14 @@ public class CipherTools {
         m_DecryptCipher = Cipher.getInstance(CipherTransformation, "BC");
         m_EncryptCipher.init(Cipher.ENCRYPT_MODE, key, iv);
         m_DecryptCipher.init(Cipher.DECRYPT_MODE, key, iv);
+        m_Mac = Mac.getInstance(CipherMac, "BC");
+        m_Mac.init(key);
+    }
+
+    public byte[] mac(byte[] encrypted) {
+        m_Mac.reset();
+        m_Mac.update(encrypted);
+        return m_Mac.doFinal();
     }
 
     public byte[] encrypt(byte[] unencrypted) throws BadPaddingException, IllegalBlockSizeException {

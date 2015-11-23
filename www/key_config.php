@@ -1,6 +1,7 @@
 <?php
 
 define("PICO_CIPHER", "AES-128-CBC");
+define("HMAC_CIPHER", "sha256");
 define("KEY_SIZE", 16);
 define("IV_SIZE", openssl_cipher_iv_length(PICO_CIPHER));
 

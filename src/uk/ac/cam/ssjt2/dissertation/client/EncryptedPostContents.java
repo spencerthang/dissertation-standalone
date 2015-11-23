@@ -14,6 +14,7 @@ import java.security.GeneralSecurityException;
 public class EncryptedPostContents extends PostContents {
 
     private final String m_IV;
+    private final String m_HMAC;
     private final String m_SessionId;
 
     public EncryptedPostContents(Message message, SecretKey key, String sessionId) throws GeneralSecurityException {
@@ -25,6 +26,8 @@ public class EncryptedPostContents extends PostContents {
         CipherTools cipher = new CipherTools(key, iv);
         byte[] encrypted = cipher.encrypt(getData().getBytes());
         setData(DatatypeConverter.printBase64Binary(encrypted));
+
+        m_HMAC = DatatypeConverter.printBase64Binary(cipher.mac(encrypted));
 
         m_SessionId = sessionId;
     }
@@ -39,4 +42,8 @@ public class EncryptedPostContents extends PostContents {
         return m_IV;
     }
 
+    @Override
+    public String getBase64EncodedHMAC() {
+        return m_HMAC;
+    }
 }

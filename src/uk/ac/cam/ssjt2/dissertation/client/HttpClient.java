@@ -21,6 +21,7 @@ public class HttpClient {
     public String post(PostContents data) throws IOException {
         String urlParameters = "Data=" + URLEncoder.encode(data.getData());
         if(data.getBase64EncodedIV() != null) urlParameters += "&IV=" + URLEncoder.encode(data.getBase64EncodedIV());
+        if(data.getBase64EncodedHMAC() != null) urlParameters += "&HMAC=" + URLEncoder.encode(data.getBase64EncodedHMAC());
         if(data.getSessionId() != null) urlParameters += "&SessionId=" + URLEncoder.encode(data.getSessionId());
         byte[] postData = urlParameters.getBytes(StandardCharsets.UTF_8);
         int postDataLength = postData.length;

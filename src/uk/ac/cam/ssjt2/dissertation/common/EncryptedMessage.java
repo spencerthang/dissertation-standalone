@@ -9,11 +9,13 @@ public class EncryptedMessage {
     String Data;
     String IV;
     String Error;
+    String HMAC;
 
-    public EncryptedMessage(String data, String iv, String error) {
+    public EncryptedMessage(String data, String iv, String error, String hmac) {
         Data = data;
         IV = iv;
         Error = error;
+        HMAC = hmac;
     }
 
     public byte[] getData() {
@@ -25,4 +27,8 @@ public class EncryptedMessage {
     }
 
     public String getError() { return Error; }
+
+    public byte[] getHMAC() {
+        return DatatypeConverter.parseBase64Binary(HMAC);
+    }
 }

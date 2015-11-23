@@ -12,16 +12,11 @@ import java.io.InputStream;
  */
 public class ServerChallengeResponseMessage extends Message {
 
-    private final int m_Nonce;
+    private final int Nonce;
 
     public ServerChallengeResponseMessage(int nonce) throws IOException {
         super(AuthenticationProtocol.HEADER_SERVER_CHALLENGE_RESPONSE);
-        m_Nonce = nonce;
-    }
-
-    public static int readFromStream(InputStream inputStream) throws IOException {
-        DataInputStream dis = new DataInputStream(inputStream);
-        return dis.readInt();
+        Nonce = nonce;
     }
 
 }

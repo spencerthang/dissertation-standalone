@@ -59,6 +59,8 @@ public class AuthenticationClient {
 
         m_SessionKey = kdcResponse.getSessionKey();
         m_KDCMessageToServer = kdcResponse.getTargetMessage();
+
+        System.out.println("KDC Response validated, nonce: " + kdcResponse.getClientNonce() + ", target: " + kdcResponse.getTargetId());
     }
 
     public boolean connectToServer(String targetUrl) throws IOException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
@@ -70,10 +72,14 @@ public class AuthenticationClient {
         ServerChallengeMessage serverChallenge = ((ServerChallengeMessage)Message.fromEncryptedResponse(m_SessionKey, encryptedServerChallenge));
         m_SessionId = serverChallenge.getSessionId();
 
+        System.out.println("Server assigned session id: " + m_SessionId);
+
         // Repsonse to Server Challenge
         ServerChallengeResponseMessage serverChallengeResponseMessage = new ServerChallengeResponseMessage(serverChallenge.getServerNonce());
         String encryptedServerAuthentication = serverClient.post(new EncryptedPostContents(serverChallengeResponseMessage, m_SessionKey, m_SessionId));
         ServerAuthenticationStatusMessage serverAuthentication = ((ServerAuthenticationStatusMessage)Message.fromEncryptedResponse(m_SessionKey, encryptedServerAuthentication));
+
+        System.out.println("Server authentication: " + serverAuthentication.isAuthenticated() + " with server nonce " + serverChallenge.getServerNonce());
 
         return serverAuthentication.isAuthenticated();
     }

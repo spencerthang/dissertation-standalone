@@ -7,6 +7,7 @@ class AuthenticationProtocol
     const HEADER_SERVER_HANDSHAKE = 3;
     const HEADER_SERVER_CHALLENGE = 4;
     const HEADER_SERVER_CHALLENGE_RESPONSE = 5;
+    const HEADER_SERVER_AUTHENTICATED_RESPONSE = 6;
 }
 
 // The server will accept well-formed HTTP POST requests only.
@@ -31,10 +32,17 @@ switch($data['Header']) {
         $sessionKey = base64_decode($handshake['SessionKey']);
         $clientId = $handshake['ClientId'];
 
+        // Generate a new session and include the ID
+        session_start();
+        $_SESSION['Authenticated'] = false;
+        $_SESSION['ServerNonce'] = mt_rand(0, 2147483647);
+
         // Generate server challenge
         $serverChallenge = array(
-            "ServerNonce" => mt_rand(0, 2147483647),
+            "Header" => AuthenticationProtocol::HEADER_SERVER_CHALLENGE,
+            "ServerNonce" => $_SESSION['ServerNonce'],
             "ClientId" => $clientId,
+            "SessionId" => session_id()
         );
         result($serverChallenge, $sessionKey);
 

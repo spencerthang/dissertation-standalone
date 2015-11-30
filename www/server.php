@@ -47,7 +47,7 @@ if(!isset($data['header'])) {
 }
 
 // Set server key
-$serverKey = $keys[2];
+$serverKey = $keys['Test Service'];
 
 switch($data['header']) {
     case AuthenticationProtocol::HEADER_SERVER_HANDSHAKE:

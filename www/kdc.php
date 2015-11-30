@@ -85,7 +85,7 @@ function result($data, $key) {
         'encryptedData' => base64_encode($data),
         'length' => mb_strlen($data, '8bit'),
         'iv' => base64_encode($iv),
-        'mac' => base64_encode(hash_hmac(HMAC_CIPHER, $data, $key, true))
+        'mac' => base64_encode(hash_hmac(HMAC_CIPHER, $iv . $data, $key, true))
     );
     die(json_encode($result));
 }

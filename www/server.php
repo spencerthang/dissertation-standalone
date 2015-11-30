@@ -135,7 +135,7 @@ function result($data, $key) {
         'encryptedData' => base64_encode($data),
         'length' => mb_strlen($data, '8bit'),
         'iv' => base64_encode($iv),
-        'mac' => base64_encode(hash_hmac(HMAC_CIPHER, $data, $key, true))
+        'mac' => base64_encode(hash_hmac(HMAC_CIPHER, $iv . $data, $key, true))
     );
     die(json_encode($result));
 }
@@ -151,7 +151,7 @@ function user_result($response) {
 function decryptMessage($data, $iv, $hmac, $key) {
     $data = base64_decode($data);
     $iv = base64_decode($iv);
-    if(hash_hmac(HMAC_CIPHER, $data, $key, true) != base64_decode($hmac)) {
+    if(hash_hmac(HMAC_CIPHER, $iv . $data, $key, true) != base64_decode($hmac)) {
         return null;
     }
     $decrypted = openssl_decrypt($data, PICO_CIPHER, $key, OPENSSL_RAW_DATA, $iv);

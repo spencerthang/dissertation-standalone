@@ -9,10 +9,10 @@ class AuthenticationProtocol
 }
 
 // The KDC will accept well-formed HTTP POST requests only.
-if(!isset($_POST['Data']))
+if(!isset($_POST['data']))
     result_error('No input provided.');
 
-$data = json_decode($_POST['Data'], true);
+$data = json_decode($_POST['data'], true);
 
 // Check if JSON decode was successful
 if($data === null) {
@@ -20,26 +20,26 @@ if($data === null) {
 }
 
 // Check for the presence of a header
-if(!isset($data['Header'])) {
+if(!isset($data['header'])) {
     result_error('Request payload did not provide a header.');
 }
 
-switch($data['Header']) {
+switch($data['header']) {
     case AuthenticationProtocol::HEADER_KDC_REQUEST:
         // Parse input from client
-        if(!isset($data['ClientId']) || !isset($data['TargetId']) || !isset($data['ClientNonce'])) {
+        if(!isset($data['clientName']) || !isset($data['targetName']) || !isset($data['clientNonce'])) {
             result_error('Malformed KDC request.');
         }
 
-        $clientId = $data['ClientId'];
-        $targetId = $data['TargetId'];
-        $clientNonce = $data["ClientNonce"];
+        $clientName = $data['clientName'];
+        $targetName = $data['targetName'];
+        $clientNonce = $data['clientNonce'];
 
         // Obtain keys
-        if(!isset($keys[$clientId])) result_error('Client not found.');
-        if(!isset($keys[$targetId])) result_error('Target not found.');
-        $clientKey = $keys[$clientId];
-        $targetKey = $keys[$targetId];
+        if(!isset($keys[$clientName])) result_error('Client not found.');
+        if(!isset($keys[$targetName])) result_error('Target not found.');
+        $clientKey = $keys[$clientName];
+        $targetKey = $keys[$targetName];
 
         // Generate session key and IVs
         $sessionKey = openssl_random_pseudo_bytes(KEY_SIZE);
@@ -47,34 +47,34 @@ switch($data['Header']) {
 
         // Generate encrypted token for the target to verify client
         $targetMessage = array(
-            "SessionKey" => base64_encode($sessionKey),
-            "ClientId" => $clientId,
+            "sessionKey" => base64_encode($sessionKey),
+            "clientName" => $clientName,
         );
         $targetMessageEncrypted = openssl_encrypt(json_encode($targetMessage), PICO_CIPHER, $targetKey, OPENSSL_RAW_DATA, $targetIV);
         $targetMessage = array(
-            "Data" => base64_encode($targetMessageEncrypted),
-            "IV" => base64_encode($targetIV),
-            "HMAC" => base64_encode(hash_hmac(HMAC_CIPHER, $targetMessageEncrypted, $targetKey, true))
+            "encryptedData" => base64_encode($targetMessageEncrypted),
+            "iv" => base64_encode($targetIV),
+            "mac" => base64_encode(hash_hmac(HMAC_CIPHER, $targetMessageEncrypted, $targetKey, true))
         );
 
         // Generate encrypted response for client
         $clientResponse = array(
-            "Header" => AuthenticationProtocol::HEADER_KDC_RESPONSE,
-            "SessionKey" => base64_encode($sessionKey),
-            "TargetId" => $data['TargetId'],
-            "ClientNonce" => $clientNonce,
-            "TargetMessage" => base64_encode(json_encode($targetMessage)),
+            "header" => AuthenticationProtocol::HEADER_KDC_RESPONSE,
+            "sessionKey" => base64_encode($sessionKey),
+            "targetName" => $data['targetName'],
+            "clientNonce" => $clientNonce,
+            "targetMessage" => base64_encode(json_encode($targetMessage)),
         );
 
         result($clientResponse, $clientKey);
 
         break;
     default:
-        result_error('Request payload had unknown header: ' . $data['Header']);
+        result_error('Request payload had unknown header: ' . $data['header']);
 }
 
 function result_error($error) {
-    $result = array('Error' => $error);
+    $result = array('error' => $error);
     die(json_encode($result));
 }
 
@@ -82,10 +82,10 @@ function result($data, $key) {
     $iv = openssl_random_pseudo_bytes(IV_SIZE);
     $data = openssl_encrypt(json_encode($data), PICO_CIPHER, $key, OPENSSL_RAW_DATA, $iv);
     $result = array(
-        'Data' => base64_encode($data),
-        'Length' => mb_strlen($data, '8bit'),
-        'IV' => base64_encode($iv),
-        'HMAC' => base64_encode(hash_hmac(HMAC_CIPHER, $data, $key, true))
+        'encryptedData' => base64_encode($data),
+        'length' => mb_strlen($data, '8bit'),
+        'iv' => base64_encode($iv),
+        'mac' => base64_encode(hash_hmac(HMAC_CIPHER, $data, $key, true))
     );
     die(json_encode($result));
 }

@@ -13,22 +13,22 @@ class AuthenticationProtocol
 }
 
 // The server will accept well-formed HTTP POST requests only.
-if(!isset($_POST['Data']))
+if(!isset($_POST['encryptedData']))
     result_error('No data provided.');
 
 // Decrypt the message if necessary
-if(!isset($_POST['IV']) || !isset($_POST['SessionId'])) {
-    $data = json_decode($_POST['Data'], true);
+if(!isset($_POST['iv']) || !isset($_POST['sessionId'])) {
+    $data = json_decode($_POST['encryptedData'], true);
 } else {
     // Initialize the previous session
-    session_id($_POST['SessionId']);
+    session_id($_POST['sessionId']);
     session_start();
 
-    if(!isset($_SESSION['SessionKey'])) {
+    if(!isset($_SESSION['sessionKey'])) {
         result_error('Invalid session, session may have expired.');
     }
 
-    $data = decryptMessage($_POST['Data'], $_POST['IV'], $_POST['HMAC'], $_SESSION['SessionKey']);
+    $data = decryptMessage($_POST['encryptedData'], $_POST['iv'], $_POST['mac'], $_SESSION['sessionKey']);
     if($data === false || $data === null) {
         result_error('Malformed request - failed to decode request.');
     }
@@ -42,70 +42,70 @@ if($data === null) {
 }
 
 // Check for the presence of a header
-if(!isset($data['Header'])) {
+if(!isset($data['header'])) {
     result_error('Request payload did not provide a header.');
 }
 
 // Set server key
 $serverKey = $keys[2];
 
-switch($data['Header']) {
+switch($data['header']) {
     case AuthenticationProtocol::HEADER_SERVER_HANDSHAKE:
         // Decrypt handshake
-        $encrypted = json_decode(base64_decode($data['Handshake']), true);
-        if($encrypted === null || !isset($encrypted['Data']) || !isset($encrypted['IV'])) {
+        $encrypted = json_decode(base64_decode($data['handshake']), true);
+        if($encrypted === null || !isset($encrypted['encryptedData']) || !isset($encrypted['iv'])) {
             result_error('Handshake invalid, failed to obtain session key.');
         }
-        $handshake = json_decode(decryptMessage($encrypted['Data'], $encrypted['IV'], $encrypted['HMAC'], $serverKey), true);
-        if($handshake === null || !isset($handshake['SessionKey']) || !isset($handshake['ClientId'])) {
+        $handshake = json_decode(decryptMessage($encrypted['encryptedData'], $encrypted['iv'], $encrypted['mac'], $serverKey), true);
+        if($handshake === null || !isset($handshake['sessionKey']) || !isset($handshake['clientName'])) {
             result_error('Handshake invalid, failed to obtain session key.');
         }
 
-        $sessionKey = base64_decode($handshake['SessionKey']);
-        $clientId = $handshake['ClientId'];
+        $sessionKey = base64_decode($handshake['sessionKey']);
+        $clientId = $handshake['clientName'];
 
         // Generate a new session and include the ID
         session_start();
-        $_SESSION['Authenticated'] = false;
-        $_SESSION['ServerNonce'] = mt_rand(0, 2147483647);
-        $_SESSION['SessionKey'] = $sessionKey;
+        $_SESSION['authenticated'] = false;
+        $_SESSION['serverNonce'] = mt_rand(0, 2147483647);
+        $_SESSION['sessionKey'] = $sessionKey;
 
         // Generate server challenge
         $serverChallenge = array(
-            "Header" => AuthenticationProtocol::HEADER_SERVER_CHALLENGE,
-            "ServerNonce" => $_SESSION['ServerNonce'],
-            "ClientId" => $clientId,
-            "SessionId" => session_id()
+            'header' => AuthenticationProtocol::HEADER_SERVER_CHALLENGE,
+            'serverNonce' => $_SESSION['serverNonce'],
+            'clientName' => $clientId,
+            'sessionId' => session_id()
         );
         result($serverChallenge, $sessionKey);
 
         break;
     case AuthenticationProtocol::HEADER_SERVER_CHALLENGE_RESPONSE:
         // Check if nonce matches
-        if(isset($_SESSION['ServerNonce'])
-            && isset($data['ServerNonce'])
-            && $_SESSION['ServerNonce'] == $data['ServerNonce']) {
-            $_SESSION['Authenticated'] = true;
+        if(isset($_SESSION['serverNonce'])
+            && isset($data['serverNonce'])
+            && $_SESSION['serverNonce'] == $data['serverNonce']) {
+            $_SESSION['authenticated'] = true;
         }
 
         $authenticationStatus = array(
-            "Header" => AuthenticationProtocol::HEADER_SERVER_AUTHENTICATION_STATUS,
-            "Authenticated" => $_SESSION['Authenticated']
+            'header' => AuthenticationProtocol::HEADER_SERVER_AUTHENTICATION_STATUS,
+            'authenticated' => $_SESSION['authenticated']
         );
-        result($authenticationStatus, $_SESSION['SessionKey']);
+        result($authenticationStatus, $_SESSION['sessionKey']);
 
         break;
     // Application code goes here, sent under SERVER_USER_MESSAGE and SERVER_USER_MESSAGE_RESPONSE.
     case AuthenticationProtocol::HEADER_SERVER_USER_MESSAGE:
-        if(!isset($_SESSION['Authenticated']) || !$_SESSION['Authenticated']) {
+        if(!isset($_SESSION['authenticated']) || !$_SESSION['authenticated']) {
             result_error('Protocol authentication failure.');
         }
 
-        if(!isset($data['Request']) || !isset($data['RequestType'])) {
+        if(!isset($data['request']) || !isset($data['requestType'])) {
             result_error('Malformed user message, missing request or request type.');
         }
 
-        $request = json_decode($data['Request'], true);
+        $request = json_decode($data['request'], true);
 
         if(!isset($request['cmd'])) {
             result_error('Malformed user message, missing command.');
@@ -120,7 +120,7 @@ switch($data['Header']) {
         }
         break;
     default:
-        result_error('Request payload had unknown header: ' . $data['Header']);
+        result_error('Request payload had unknown header: ' . $data['header']);
 }
 
 function result_error($error) {
@@ -132,20 +132,20 @@ function result($data, $key) {
     $iv = openssl_random_pseudo_bytes(IV_SIZE);
     $data = openssl_encrypt(json_encode($data), PICO_CIPHER, $key, OPENSSL_RAW_DATA, $iv);
     $result = array(
-        'Data' => base64_encode($data),
-        'Length' => mb_strlen($data, '8bit'),
-        'IV' => base64_encode($iv),
-        'HMAC' => base64_encode(hash_hmac(HMAC_CIPHER, $data, $key, true))
+        'encryptedData' => base64_encode($data),
+        'length' => mb_strlen($data, '8bit'),
+        'iv' => base64_encode($iv),
+        'mac' => base64_encode(hash_hmac(HMAC_CIPHER, $data, $key, true))
     );
     die(json_encode($result));
 }
 
 function user_result($response) {
     $userResponse = array(
-        'Header' => AuthenticationProtocol::HEADER_SERVER_USER_MESSAGE_RESPONSE,
-        'Response' => $response
+        'header' => AuthenticationProtocol::HEADER_SERVER_USER_MESSAGE_RESPONSE,
+        'response' => $response
     );
-    result($userResponse, $_SESSION['SessionKey']);
+    result($userResponse, $_SESSION['sessionKey']);
 }
 
 function decryptMessage($data, $iv, $hmac, $key) {

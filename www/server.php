@@ -13,27 +13,32 @@ class AuthenticationProtocol
 }
 
 // The server will accept well-formed HTTP POST requests only.
-if((!isset($_POST['encryptedData']) || !isset($_POST['iv']) || !isset($_POST['serverSessionId'])) && !isset($_POST['data']))
-    result_error('No data provided.');
-
 // Decrypt the message if necessary
-if(!isset($_POST['iv']) || !isset($_POST['serverSessionId'])) {
+if(isset($_POST['data'])) {
     $data = json_decode($_POST['data'], true);
-} else {
+} elseif(isset($_POST['encryptedData'])) {
+    $data = json_decode($_POST['encryptedData'], true);
+
+    if(!isset($data['serverSessionId']) || !isset($data['iv']) || !isset($data['mac'])) {
+        result_error('Malformed request - insufficient information to decode request.' . $_POST['encryptedData']);
+    }
+
     // Initialize the previous session
-    session_id($_POST['serverSessionId']);
+    session_id($data['serverSessionId']);
     session_start();
 
     if(!isset($_SESSION['sessionKey'])) {
         result_error('Invalid session, session may have expired.');
     }
 
-    $data = decryptMessage($_POST['encryptedData'], $_POST['iv'], $_POST['mac'], $_SESSION['sessionKey']);
+    $data = decryptMessage($data['encryptedData'], $data['iv'], $data['mac'], $_SESSION['sessionKey']);
     if($data === false || $data === null) {
         result_error('Malformed request - failed to decode request.');
     }
 
     $data = json_decode($data, true);
+} else {
+    result_error('No data provided.');
 }
 
 // Check if JSON decode was successful

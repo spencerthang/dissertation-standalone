@@ -13,12 +13,12 @@ class AuthenticationProtocol
 }
 
 // The server will accept well-formed HTTP POST requests only.
-if(!isset($_POST['encryptedData']))
+if((!isset($_POST['encryptedData']) || !isset($_POST['iv']) || !isset($_POST['sessionId'])) && !isset($_POST['data']))
     result_error('No data provided.');
 
 // Decrypt the message if necessary
 if(!isset($_POST['iv']) || !isset($_POST['sessionId'])) {
-    $data = json_decode($_POST['encryptedData'], true);
+    $data = json_decode($_POST['data'], true);
 } else {
     // Initialize the previous session
     session_id($_POST['sessionId']);
@@ -56,7 +56,8 @@ switch($data['header']) {
         if($encrypted === null || !isset($encrypted['encryptedData']) || !isset($encrypted['iv'])) {
             result_error('Handshake invalid, failed to obtain session key.');
         }
-        $handshake = json_decode(decryptMessage($encrypted['encryptedData'], $encrypted['iv'], $encrypted['mac'], $serverKey), true);
+        $decrypted = decryptMessage($encrypted['encryptedData'], $encrypted['iv'], $encrypted['mac'], $serverKey);
+        $handshake = json_decode($decrypted, true);
         if($handshake === null || !isset($handshake['sessionKey']) || !isset($handshake['clientName'])) {
             result_error('Handshake invalid, failed to obtain session key.');
         }

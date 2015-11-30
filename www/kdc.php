@@ -54,7 +54,7 @@ switch($data['header']) {
         $targetMessage = array(
             "encryptedData" => base64_encode($targetMessageEncrypted),
             "iv" => base64_encode($targetIV),
-            "mac" => base64_encode(hash_hmac(HMAC_CIPHER, $targetMessageEncrypted, $targetKey, true))
+            "mac" => base64_encode(hash_hmac(HMAC_CIPHER, $targetIV . $targetMessageEncrypted, $targetKey, true))
         );
 
         // Generate encrypted response for client

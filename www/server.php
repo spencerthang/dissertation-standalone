@@ -13,15 +13,15 @@ class AuthenticationProtocol
 }
 
 // The server will accept well-formed HTTP POST requests only.
-if((!isset($_POST['encryptedData']) || !isset($_POST['iv']) || !isset($_POST['sessionId'])) && !isset($_POST['data']))
+if((!isset($_POST['encryptedData']) || !isset($_POST['iv']) || !isset($_POST['serverSessionId'])) && !isset($_POST['data']))
     result_error('No data provided.');
 
 // Decrypt the message if necessary
-if(!isset($_POST['iv']) || !isset($_POST['sessionId'])) {
+if(!isset($_POST['iv']) || !isset($_POST['serverSessionId'])) {
     $data = json_decode($_POST['data'], true);
 } else {
     // Initialize the previous session
-    session_id($_POST['sessionId']);
+    session_id($_POST['serverSessionId']);
     session_start();
 
     if(!isset($_SESSION['sessionKey'])) {
@@ -76,7 +76,7 @@ switch($data['header']) {
             'header' => AuthenticationProtocol::HEADER_SERVER_CHALLENGE,
             'serverNonce' => $_SESSION['serverNonce'],
             'clientName' => $clientId,
-            'sessionId' => session_id()
+            'serverSessionId' => session_id()
         );
         result($serverChallenge, $sessionKey);
 

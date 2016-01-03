@@ -136,12 +136,14 @@ function result_error($error) {
 
 function result($data, $key) {
     $iv = openssl_random_pseudo_bytes(IV_SIZE);
-    $data = openssl_encrypt(json_encode($data), PICO_CIPHER, $key, OPENSSL_RAW_DATA, $iv);
+	$enc_key = substr(hash("sha256", $key . 'e', true), 0, 16);
+	$hash_key = substr(hash("sha256", $key . 'm', true), 0, 16);
+    $data = openssl_encrypt(json_encode($data), PICO_CIPHER, $enc_key, OPENSSL_RAW_DATA, $iv);
     $result = array(
         'encryptedData' => base64_encode($data),
         'length' => mb_strlen($data, '8bit'),
         'iv' => base64_encode($iv),
-        'mac' => base64_encode(hash_hmac(HMAC_CIPHER, $iv . $data, $key, true))
+        'mac' => base64_encode(hash_hmac(HMAC_CIPHER, $iv . $data, $hash_key, true))
     );
     die(json_encode($result));
 }

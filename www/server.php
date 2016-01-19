@@ -87,18 +87,24 @@ switch($data['header']) {
 
         break;
     case AuthenticationProtocol::HEADER_SERVER_CHALLENGE_RESPONSE:
+        $sessionKey = $_SESSION['sessionKey'];
+
         // Check if nonce matches
         if(isset($_SESSION['serverNonce'])
             && isset($data['serverNonce'])
-            && $_SESSION['serverNonce'] == $data['serverNonce']) {
+            && $_SESSION['serverNonce'] == $data['serverNonce']
+            && isset($data['serverSessionNonce'])) {
+            $_SESSION['authenticated'] = true;
+            session_write_close();
+            session_id($data['serverSessionNonce']);
+            session_start();
             $_SESSION['authenticated'] = true;
         }
-
         $authenticationStatus = array(
             'header' => AuthenticationProtocol::HEADER_SERVER_AUTHENTICATION_STATUS,
             'authenticated' => $_SESSION['authenticated']
         );
-        result($authenticationStatus, $_SESSION['sessionKey']);
+        result($authenticationStatus, $sessionKey);
 
         break;
     // Application code goes here, sent under SERVER_USER_MESSAGE and SERVER_USER_MESSAGE_RESPONSE.

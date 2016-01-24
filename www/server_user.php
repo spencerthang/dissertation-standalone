@@ -1,9 +1,10 @@
 <?php
+	require_once("server_user_config.php");
 	session_start();
 	$data = array(
 		"nonce" => session_id(),
-		"sn" => "Test Service",
-		"sa" => "http://127.0.0.1/pico/server.php",
+		"sn" => $su_config["sn"],
+		"sa" => $su_config["sa"],
 		"t" => "SA"
 	);
 ?>

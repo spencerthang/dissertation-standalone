@@ -1,6 +1,8 @@
 <?php
 
 require_once("key_config.php");
+require_once("bonneau.php");
+require_once("server_user_config.php.php");
 
 class AuthenticationProtocol
 {
@@ -122,8 +124,11 @@ switch($data['header']) {
             && isset($data['password'])) {
 
             // Verify username and password
-            if($data['username'] == 'symmetric'
-                && $data['password'] == 'auth') {
+            /*if($data['username'] == 'symmetric'
+                && $data['password'] == 'auth') {*/
+            // The value of hash_z will be looked up from the database, not the username nor password.
+            if(hash_z($data['username'], $data['password'], $su_config["hash_server_z_salt"], $su_config["hash_l2_iterations"])
+                == '32549c1102de0b930f3e4abee9f7d37c28ee4bff643491f6ebd86aad4a24cf95') {
                 session_write_close();
                 session_id($data['serverSessionNonce']);
                 session_start();

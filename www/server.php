@@ -29,11 +29,11 @@ if(isset($_POST['data'])) {
     session_id($data['serverSessionId']);
     session_start();
 
-    if(!isset($_SESSION['sessionKey'])) {
+    if(getSessionKey() === false) {
         result_error('Invalid session, session may have expired.');
     }
 
-    $data = decryptMessage($data['encryptedData'], $data['iv'], $data['mac'], $_SESSION['sessionKey']);
+    $data = decryptMessage($data['encryptedData'], $data['iv'], $data['mac'], getSessionKey());
     if($data === false || $data === null) {
         result_error('Malformed request - failed to decode request.');
     }
@@ -100,7 +100,7 @@ switch($data['header']) {
             'header' => AuthenticationProtocol::HEADER_SERVER_AUTHENTICATION_STATUS,
             'authenticated' => $_SESSION['authenticated']
         );
-        result($authenticationStatus, $_SESSION['sessionKey']);
+        result($authenticationStatus, getSessionKey());
 
         break;
     // Application code goes here, sent under SERVER_USER_MESSAGE and SERVER_USER_MESSAGE_RESPONSE.
@@ -109,7 +109,7 @@ switch($data['header']) {
             result_error('Protocol authentication failure.');
         }
 
-        $sessionKey = $_SESSION['sessionKey'];
+        $sessionKey = getSessionKey();
 
         // Begin login process
         $loginStatus = array(
@@ -167,8 +167,12 @@ switch($data['header']) {
 }
 
 function result_error($error) {
-    $result = array('Error' => $error);
-    die(json_encode($result));
+    $data = array('Error' => $error);
+    if(getSessionKey() === false) {
+        die(json_encode($data));
+    } else {
+        result($data, getSessionKey());
+    }
 }
 
 function result($data, $key) {
@@ -190,7 +194,7 @@ function user_result($response) {
         'header' => AuthenticationProtocol::HEADER_SERVER_USER_MESSAGE_RESPONSE,
         'response' => $response
     );
-    result($userResponse, $_SESSION['sessionKey']);
+    result($userResponse, getSessionKey());
 }
 
 function decryptMessage($data, $iv, $hmac, $key) {
@@ -202,6 +206,12 @@ function decryptMessage($data, $iv, $hmac, $key) {
     $decrypted = openssl_decrypt($data, PICO_CIPHER, $key, OPENSSL_RAW_DATA, $iv);
     return $decrypted;
 }
+
+ function getSessionKey() {
+     if(session_status() !== PHP_SESSION_ACTIVE) return false;
+     if(!isset($_SESSION["sessionKey"])) return false;
+     return $_SESSION["sessionKey"];
+ }
 
 
 ?>

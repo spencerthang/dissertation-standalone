@@ -8,6 +8,8 @@ class AuthenticationProtocol
     const HEADER_SERVER_CHALLENGE = 4;
     const HEADER_SERVER_CHALLENGE_RESPONSE = 5;
     const HEADER_SERVER_AUTHENTICATION_STATUS = 6;
+    const HEADER_SERVER_LOGIN_MESSAGE = 7;
+    const HEADER_SERVER_LOGIN_MESSAGE_RESPONSE = 8;
     const HEADER_SERVER_USER_MESSAGE = 10;
     const HEADER_SERVER_USER_MESSAGE_RESPONSE = 11;
 }
@@ -87,27 +89,52 @@ switch($data['header']) {
 
         break;
     case AuthenticationProtocol::HEADER_SERVER_CHALLENGE_RESPONSE:
-        $sessionKey = $_SESSION['sessionKey'];
-
         // Check if nonce matches
         if(isset($_SESSION['serverNonce'])
             && isset($data['serverNonce'])
-            && $_SESSION['serverNonce'] == $data['serverNonce']
-            && isset($data['serverSessionNonce'])) {
-            $_SESSION['authenticated'] = true;
-            session_write_close();
-            session_id($data['serverSessionNonce']);
-            session_start();
+            && $_SESSION['serverNonce'] == $data['serverNonce']) {
             $_SESSION['authenticated'] = true;
         }
+
         $authenticationStatus = array(
             'header' => AuthenticationProtocol::HEADER_SERVER_AUTHENTICATION_STATUS,
             'authenticated' => $_SESSION['authenticated']
         );
-        result($authenticationStatus, $sessionKey);
+        result($authenticationStatus, $_SESSION['sessionKey']);
 
         break;
     // Application code goes here, sent under SERVER_USER_MESSAGE and SERVER_USER_MESSAGE_RESPONSE.
+    case AuthenticationProtocol::HEADER_SERVER_LOGIN_MESSAGE:
+        if(!isset($_SESSION['authenticated']) || !$_SESSION['authenticated']) {
+            result_error('Protocol authentication failure.');
+        }
+
+        $sessionKey = $_SESSION['sessionKey'];
+
+        // Begin login process
+        $loginStatus = array(
+            'header' => AuthenticationProtocol::HEADER_SERVER_LOGIN_MESSAGE_RESPONSE,
+            'loggedIn' => false
+        );
+
+        if(isset($data['serverSessionNonce']) // which session to login?
+            && isset($data['username']) // username and password
+            && isset($data['password'])) {
+
+            // Verify username and password
+            if($data['username'] == 'symmetric'
+                && $data['password' == 'auth']) {
+                session_write_close();
+                session_id($data['serverSessionNonce']);
+                session_start();
+                $_SESSION['loggedIn'] = true;
+                $loginStatus['loggedIn'] = true;
+            }
+        }
+
+        result($loginStatus, $sessionKey);
+
+        break;
     case AuthenticationProtocol::HEADER_SERVER_USER_MESSAGE:
         if(!isset($_SESSION['authenticated']) || !$_SESSION['authenticated']) {
             result_error('Protocol authentication failure.');

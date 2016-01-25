@@ -8,8 +8,8 @@
 		"t" => "SA"
 	);
 ?>
-<script type="text/javascript" src="qrcode.js"></script>
-<script type="text/javascript" src="jquery-2.2.0.js"></script>
+<script type="text/javascript" src="js/jquery-2.2.0.js"></script>
+<script type="text/javascript" src="js/jquery.qrcode-0.12.0.js"></script>
 LOGIN STATUS: <span id="login_status"></span><br />
 UPDATING IN: <span id="timer">loading...</span>
 <br /><br />

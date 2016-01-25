@@ -123,13 +123,17 @@ switch($data['header']) {
 
             // Verify username and password
             if($data['username'] == 'symmetric'
-                && $data['password' == 'auth']) {
+                && $data['password'] == 'auth') {
                 session_write_close();
                 session_id($data['serverSessionNonce']);
                 session_start();
                 $_SESSION['loggedIn'] = true;
                 $loginStatus['loggedIn'] = true;
+            } else {
+                result_error('Login failed: invalid username or password.');
             }
+        } else {
+            result_error('Login failed: insufficient data provided.');
         }
 
         result($loginStatus, $sessionKey);

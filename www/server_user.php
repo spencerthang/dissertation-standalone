@@ -32,6 +32,7 @@ var data = JSON.parse('<?php echo json_encode($data); ?>')
 function generate_qr() {
 	data["su"] = document.getElementById("username").value;
 	data["sp"] = document.getElementById("password").value;
+	document.getElementById('qrcode').innerHTML = ''
 	new QRCode(document.getElementById("qrcode"), JSON.stringify(data));
 	return false;
 }

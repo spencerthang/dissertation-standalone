@@ -1,5 +1,6 @@
 <?php
 	require_once("server_user_config.php");
+	require_once("bonneau.php");
 	session_start();
 	$data = array(
 		"nonce" => session_id(),
@@ -24,6 +25,13 @@ UPDATING IN: <span id="timer">loading...</span>
 
 <br /><br />
 
+<?php
+
+echo 'server_hash_x(symmetric, auth, ' . $su_config["sn"] . ' ,' . $su_config["hash_client_salt"] . ' ,' . $su_config["hash_l1_iterations"] . ') = ';
+echo hash_x('symmetric', 'auth', $su_config["sn"], $su_config["hash_client_salt"], $su_config["hash_l1_iterations"]);
+
+?>
+
 <div id="hash_log"></div>
 
 <br /><br />
@@ -47,7 +55,7 @@ Scan the following QR code with the Pico app to continue:
 		// generate hash
 		hashx = Hash.hash_x(username, password, service_name, hash_client_salt, hash_l1_iterations);
 
-		$('#hash_log').html('Hash x = ' + hashx);
+		$('#hash_log').html('client_hash_x(' + username + ', ' + password + ', ' + service_name + ', ' + hash_client_salt + ', ' + hash_l1_iterations + ') = ' + hashx);
 
 		data["su"] = username;
 		data["sp"] = hashx;

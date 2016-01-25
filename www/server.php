@@ -2,7 +2,7 @@
 
 require_once("key_config.php");
 require_once("bonneau.php");
-require_once("server_user_config.php.php");
+require_once("server_user_config.php");
 
 class AuthenticationProtocol
 {

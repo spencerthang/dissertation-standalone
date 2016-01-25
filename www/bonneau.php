@@ -17,4 +17,12 @@ function hash_x($user, $pass, $server, $salt, $iterations) {
     return hash_b($user . $pass . $server, $salt, $iterations);
 }
 
+function hash_y($user, $server, $salt, $iterations) {
+    return hash_b($user . $server, $salt, $iterations);
+}
+
+function hash_z($user, $hash_x, $salt, $iterations) {
+    return hash_b($user . $hash_x, $salt, $iterations);
+}
+
 ?>

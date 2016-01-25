@@ -8,19 +8,31 @@
 		"t" => "SA"
 	);
 ?>
-You are <?php echo (isset($_SESSION["authenticated"]) && $_SESSION["authenticated"] === true) ? "authenticated" : "unauthenticated"; ?>.<br />
-Scan the following QR code with the Pico app to continue: <br /><br />
-<div id="qrcode"></div><br /><br />
+LOGIN STATUS: <?php echo (isset($_SESSION["loggedIn"]) && $_SESSION["loggedIn"] === true) ? "<span style='color:green'>logged in</span>" : "<span style='color:red'>not logged in</span>"; ?>
+<br /><br />
 
-This page will refresh in <span id="countdown"></span> seconds, or <a href='#' onclick='location.reload(true); return false;'>refresh now</a>.
+<form>
+	Username: <input id="username" /><br />
+	Password: <input id="password" /><br />
+	<input type="Submit" value="Generate QR Code" onclick="return generate_qr();" />
+</form>
+
+<br /><br />
+
+Scan the following QR code with the Pico app to continue: 
+
+<br /><br />
+
+<div id="qrcode"></div>
 
 <script type="text/javascript" src="qrcode.js"></script>
 <script type="text/javascript">
-(function countdown(remaining) {
-	if(remaining === 0)
-		location.reload(true);
-	document.getElementById('countdown').innerHTML = remaining;
-	setTimeout(function(){ countdown(remaining - 1); }, 1000);
-})(5);
-new QRCode(document.getElementById("qrcode"), '<?php echo json_encode($data); ?>');
+var data = JSON.parse('<?php echo json_encode($data); ?>')
+
+function generate_qr() {
+	data["su"] = document.getElementById("username").value;
+	data["sp"] = document.getElementById("password").value;
+	new QRCode(document.getElementById("qrcode"), JSON.stringify(data));
+	return false;
+}
 </script>

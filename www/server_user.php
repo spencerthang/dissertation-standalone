@@ -32,9 +32,9 @@ Scan the following QR code with the Pico app to continue:
 	var data = JSON.parse('<?php echo json_encode($data); ?>');
 
 	function generate_qr() {
-		data["su"] = document.getElementById("username").value;
-		data["sp"] = document.getElementById("password").value;
-		document.getElementById('qrcode').innerHTML = '';
+		data["su"] = $('#username').val();
+		data["sp"] = $('#password').val();
+		$('#qrcode').html('');
 		new QRCode(document.getElementById("qrcode"), JSON.stringify(data));
 		return false;
 	}

@@ -25,13 +25,20 @@ UPDATING IN: <span id="timer">loading...</span>
 
 <br /><br />
 
+<strong>server-generated</strong><br />
 <?php
 
-echo 'server_hash_x(symmetric, auth, ' . $su_config["sn"] . ' ,' . $su_config["hash_client_salt"] . ' ,' . $su_config["hash_l1_iterations"] . ') = ';
-echo hash_x('symmetric', 'auth', $su_config["sn"], $su_config["hash_client_salt"], $su_config["hash_l1_iterations"]);
+echo 'server_hash_x(symmetric, auth, ' . $su_config["sn"] . ', ' . $su_config["hash_client_salt"] . ', ' . $su_config["hash_l1_iterations"] . ') = ';
+$hashx = hash_x('symmetric', 'auth', $su_config["sn"], $su_config["hash_client_salt"], $su_config["hash_l1_iterations"]);
+echo $hashx . "<br />";
+echo 'server_hash_z(symmetric, ' . $hashx . ', ' . $su_config["hash_server_z_salt"] . ', ' . $su_config["hash_l2_iterations"] . ') = ';
+echo hash_z('symmetric', $hashx, $su_config["hash_server_z_salt"], $su_config["hash_l2_iterations"]);
 
 ?>
 
+<br /><br />
+
+<strong>client-generated</strong><br />
 <div id="hash_log"></div>
 
 <br /><br />
@@ -54,12 +61,13 @@ Scan the following QR code with the Pico app to continue:
 
 		// generate hash
 		hashx = Hash.hash_x(username, password, service_name, hash_client_salt, hash_l1_iterations);
-
-		$('#hash_log').html('client_hash_x(' + username + ', ' + password + ', ' + service_name + ', ' + hash_client_salt + ', ' + hash_l1_iterations + ') = ' + hashx);
-
 		data["su"] = username;
 		data["sp"] = hashx;
+		$('#hash_log').html('client_hash_x(' + username + ', ' + password + ', ' + service_name + ', ' + hash_client_salt + ', ' + hash_l1_iterations + ') = ' + hashx + "\r\n" + JSON.stringify(data));
+
+		// generate qr
 		generate_qr(data);
+
 		return false;
 	}
 

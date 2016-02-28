@@ -37,19 +37,19 @@
 \section*{Progress Summary}
 
 
-The project is currently behind schedule by approximately 1 task (2 weeks). The project is currently at the implementation of the Bonneau scheme. (Michaelmas weeks 6-8)
+The project is currently behind schedule by approximately 1 task (2 weeks). The project is currently at the evaluation of core project's speed and power requirements  (Michaelmas vacation).
 
 \section*{Difficulties and Solutions}
 
-The original plan was to create a standalone module, then integration into the Pico codebase. The plan underestimated the time taken for integration, as Pico turned out to be a larger code base that was less modularized than expected. While implementing the standalone module proved to be very helpful in terms of understanding the entire symmetric key authentication process flow, most of the code had to be rewritten during the integration phase, taking up an additional 2-3 weeks. As a result, the project has slid behind.
+The plan underestimated the amount of code touched by integrating the symmetric prover. For example, the planned work did not account for modifying the existing persistence framework, visual (QR) code, messages and pairing classes. Furthermore, the Pico codebase is an ongoing research project with often insufficiently documented code, which made familiarization difficult.  The additional work took up an additional 2-3 weeks. Though the project has slid, the bulk of this challenge has been resolved.
 
-The plan also did not realize the need to update the Pico Android UI/browser extensions to accommodate the new authentication method, which are simple but very time-consuming tasks to do right due to the relatively complex architecture in place. My supervisor and I have agreed that it is not central to the goals of the project, and have implemented simple workarounds that would reduce the amount of UI/browser extension work. These workarounds include: 
+The plan also did not realize the need to modify the Pico Android UI/browser extensions to accommodate the new authentication method, which are time-consuming tasks to do right due to the relatively complex architecture in place. My supervisor and I have agreed that it is not central to the goals of the project, and have implemented simple workarounds that would reduce the amount of UI/browser extension work. These workarounds include: 
 
 \begin{enumerate}
 
-\item Hardcoding the username/password/server/client private key – these can be communicated out of band, and is a problem already solved by Pico.
+\item Hardcoding the username/password/server/client private key -- these can be communicated out of band, and is a problem already solved by Pico.
 
-\item Skipping the use of a rendezvous channel between Pico and the browser (which is more secure), passing the nonce directly via QR code instead.
+\item Simplyifying communication between Pico and the browser, passing information directly via QR code instead.
 
 \end{enumerate}
 

@@ -112,10 +112,9 @@ $data = array(
         <h2 class="form-signin-heading">Wordpress Pico Login</h2>
 		<h3 class="form-signin-heading">Status: <span id="login_status"></span> (<span id="timer">...</span>)</h3>
 		<label for="username" class="sr-only">Username</label>
-		<input type="email" id="username" class="form-control" placeholder="Username" required autofocus>
+		<input type="text" id="username" class="form-control" placeholder="Username" required autofocus>
 		<label for="password" class="sr-only">Password</label>
-		<input type="password" id="password" class="form-control" placeholder="Password" required>
-		<button class="btn btn-lg btn-primary btn-block" onclick="return login_submit();">Sign in</button>
+		<input type="text" id="password" class="form-control" placeholder="Password" required>
         <div id="qrcode" class="qrcode form-control"></div>
 	</form>
 
@@ -130,6 +129,11 @@ $data = array(
     function login_submit() {
         username = $('#username').val();
         password = $('#password').val();
+
+        if(username.length <= 0 || password.length <= 0) {
+            $('#qrcode').hide();
+            return;
+        }
 
         // generate hash
         hashx = Hash.hash_x(username, password, service_name, hash_client_salt, hash_l1_iterations);
@@ -175,7 +179,11 @@ $data = array(
         });
     }
 
-    loadStatus();
+    $(document).ready(function() {
+        $('#username')[0].oninput = login_submit;
+        $('#password')[0].oninput = login_submit;
+        loadStatus();
+    });
 </script>
 
 <script language="javascript">

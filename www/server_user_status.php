@@ -6,7 +6,7 @@ require_once("bonneau.php");
 if(isset($_SESSION["loggedIn"]) && isset($_SESSION["username"]) && isset($_SESSION["password"]) && $_SESSION["loggedIn"] === true) {
 	// Perform hashing	
 	$y = hash_y($_SESSION["username"], $su_config["sn"], $su_config["hash_server_y_salt"], $su_config["hash_l2_iterations"]);
-	$z = hash_z($_SESSION["password"], $password, $su_config["hash_server_z_salt"], $su_config["hash_l2_iterations"]);
+	$z = hash_z($_SESSION["username"], $_SESSION["password"], $su_config["hash_server_z_salt"], $su_config["hash_l2_iterations"]);
 	
 	// Let username and password be y/z
 	$username = substr($y, 0, 60);

@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once("server_user_config.php");
+require_once("bonneau.php");
 
 if(isset($_SESSION["loggedIn"]) && isset($_SESSION["username"]) && isset($_SESSION["password"]) && $_SESSION["loggedIn"] === true) {
 	// Perform hashing	

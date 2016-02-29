@@ -123,16 +123,13 @@ switch($data['header']) {
             && isset($data['password'])) {
 
             // Verify username and password
-            /*if($data['username'] == 'symmetric'
-                && $data['password'] == 'auth') {*/
-            // The value of hash_z will be looked up from the database, not the username nor password.
             if(server_login($data['username'], $data['password'])) {
                 session_write_close();
                 session_id($data['serverSessionNonce']);
                 session_start();
                 $_SESSION['loggedIn'] = true;
-				$_SESSION['username'] = $data['username'];
-				$_SESSION['password'] = $data['password'];
+                $_SESSION['username'] = $data['username'];
+                $_SESSION['password'] = $data['password'];
                 $loginStatus['loggedIn'] = true;
             } else {
                 result_error('Login failed: invalid username or password.');

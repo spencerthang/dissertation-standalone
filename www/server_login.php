@@ -13,6 +13,11 @@ function server_login($username, $password)
 	// Let username and password be y/z
 	$username = substr($y, 0, 60);
 	$password = $z;
+	
+	// Automatically create user if one does not exist
+	if(!username_exists($username)) {
+		wp_create_user($username, $password);
+	}
 
 	// Perform auth without logging in
 	$wp_user = wp_authenticate_username_password(NULL, $username, $password);

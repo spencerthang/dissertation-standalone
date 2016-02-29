@@ -18,7 +18,12 @@ if(isset($_SESSION["loggedIn"]) && isset($_SESSION["username"]) && isset($_SESSI
 				   'remember' => true);
 	$wp_user = wp_signon($creds, true);
 	if(!is_wp_error($wp_user)) {
+		// Set wordpress cookie
 		wp_set_auth_cookie($wp_user->ID, true);
+		
+		// Destroy session, so we don't keep redirecting
+		session_destroy();
+		
 		// Return result, including redirect
 		echo "<span style='color:green'>logged in</span><script language='javascript'>window.location = '/wordpress';</script>";
 	} else {

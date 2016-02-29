@@ -157,6 +157,7 @@ $data = array(
             "color": "#3a3",
             "text": JSON.stringify(data)
         });
+        $('#qrcode').prop('title', JSON.stringify(data, null, '\t'));
     }
 
     var counter;

@@ -55,7 +55,7 @@ if(!isset($data['header'])) {
 }
 
 // Set server key
-$serverKey = $keys['Test Service'];
+$serverKey = $keys['Wordpress'];
 
 switch($data['header']) {
     case AuthenticationProtocol::HEADER_SERVER_HANDSHAKE:

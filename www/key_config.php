@@ -14,5 +14,6 @@ $keys = array();
 $keys[0] = base64_decode('fB6hisXVQU4fZkZ59x6v0A=='); // KDC Key
 $keys['Test Client'] = base64_decode('eCd2T3UxOG8WfbuTm2DxiQ=='); // Client Key
 $keys['Test Service'] = base64_decode('h98dZzwkug6PBOryUrBlxA=='); // Server Key
+$keys['Wordpress'] = base64_decode('67b5bGY4LnMN/B/aVqdvNw==') // Wordpress Server Key
 
 ?>

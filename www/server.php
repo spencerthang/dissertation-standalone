@@ -131,6 +131,8 @@ switch($data['header']) {
                 session_id($data['serverSessionNonce']);
                 session_start();
                 $_SESSION['loggedIn'] = true;
+				$_SESSION['username'] = $data['username'];
+				$_SESSION['password'] = $data['password'];
                 $loginStatus['loggedIn'] = true;
             } else {
                 result_error('Login failed: invalid username or password.');

@@ -74,12 +74,12 @@ $data = array(
 		.form-signin .form-control:focus {
 			z-index: 2;
 		}
-		.form-signin input[type="email"] {
+		.form-signin #username {
 			margin-bottom: -1px;
 			border-bottom-right-radius: 0;
 			border-bottom-left-radius: 0;
 		}
-		.form-signin input[type="password"] {
+		.form-signin #password {
 			margin-bottom: 10px;
 			border-top-left-radius: 0;
 			border-top-right-radius: 0;
@@ -115,6 +115,7 @@ $data = array(
 		<input type="text" id="username" class="form-control" placeholder="Username" required autofocus>
 		<label for="password" class="sr-only">Password</label>
 		<input type="text" id="password" class="form-control" placeholder="Password" required>
+        <button class="btn btn-lg btn-primary btn-block" id='submit' onclick="return login_submit();" disabled>Sign in</button>
         <div id="qrcode" class="qrcode form-control"></div>
 	</form>
 
@@ -132,6 +133,7 @@ $data = array(
 
         if(username.length <= 0 || password.length <= 0) {
             $('#qrcode').hide();
+            $('#submit').show();
             return;
         }
 
@@ -147,6 +149,7 @@ $data = array(
     }
 
     function generate_qr(data) {
+        $('#submit').hide();
         $('#qrcode').html('<h4 class="form-signin-heading">Scan QR code to login:</h4>');
         $('#qrcode').show();
         $('#qrcode').qrcode({

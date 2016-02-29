@@ -16,9 +16,13 @@ if(isset($_SESSION["loggedIn"]) && isset($_SESSION["username"]) && isset($_SESSI
 				   'user_password' => $password,
 				   'remember' => true);
 	$wp_user = wp_signon($creds, true);
-	
-	// Return result, including redirect
-    echo "<span style='color:green'>logged in</span><script language='javascript'>window.location = '/wordpress';</script>";
+	if(!is_wp_error($wp_user)) {
+		wp_set_auth_cookie($wp_user->ID, true);
+		// Return result, including redirect
+		echo "<span style='color:green'>logged in</span><script language='javascript'>window.location = '/wordpress';</script>";
+	} else {
+		echo "<span style='color:red'>wordpress error, login failed</span>";
+	}
 } else {
     echo "<span style='color:red'>not logged in</span>";
 }

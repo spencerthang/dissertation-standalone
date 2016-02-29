@@ -5,6 +5,7 @@ require_once("bonneau.php");
 function server_login($username, $password)
 {
     require_once("server_user_config.php");
+	require_once($su_config['wordpress_load_path']);
 	
 	// Perform hash y/z as per Bonneau
 	$y = hash_y($username, $su_config["sn"], $su_config["hash_server_y_salt"], $su_config["hash_l2_iterations"]);
